@@ -204,7 +204,8 @@ private:
 //#ifdef DEBUG_CONSISTENCY_CHECK	
 	int mOpCnt;
 //#endif
-
+    
+    char* opnull;
 protected:
 public:
 	int mDisassemble;

@@ -11,7 +11,7 @@
 #ifndef GENERAL_H
 #define GENERAL_H
 
-#define LOCATION_ROMS "/Users/bruno/Projects/A64/A64Mac/roms/"
+#define LOCATION_ROMS "roms/"
 
 class CHiresTime {
 public:

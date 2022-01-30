@@ -10,6 +10,7 @@
 
 #include "MOS6510.h"
 #include "Util.h"
+#include <sys/time.h>
 //#include <stdio.h>
 
 //#define DEBUG_TRACE_OPCODE
@@ -99,7 +100,7 @@ CMOS6510::CMOS6510(BKE_MUTEX mutex){
 	r_y		= 0x00;
 	r_p		= 0x20;
 	
-	
+    opnull = strdup("---");	
 
 	
 	//Reset the Processor Flags (p) register
@@ -110,7 +111,7 @@ CMOS6510::CMOS6510(BKE_MUTEX mutex){
 	//Create linear list of opcodes and functions
 	for(listRow=0;listRow<OPCODESMAX;listRow++){
 		mOpcodes[listRow].matrixID = ILLEGAL_OPC;
-		mOpcodes[listRow].assembly = "___";
+		mOpcodes[listRow].assembly = opnull;//"___";
 		matrixRow=0;
 		while(true){
 			if(opcodeMatrix[matrixRow].ID == END_OPC){

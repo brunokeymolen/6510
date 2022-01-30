@@ -8,7 +8,7 @@
  */
 
 #include "CBM64Main.h"
-#include "UTestOpcode.h"
+//#include "UTestOpcode.h"
 
 void* CBM64ThreadProc(void* lpParameter);
 
