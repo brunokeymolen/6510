@@ -557,6 +557,7 @@ void CMOS6510::Run(){
 		mipsactive++;
 #ifndef DEBUG_DISABLE_IRQ
 		
+		//if(mipsactive >= 250){		
 		if(mipsactive >= 25000){		
 			//IRQ
 			gettimeofday(&t, NULL);	
