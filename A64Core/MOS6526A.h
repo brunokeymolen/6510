@@ -9,6 +9,8 @@
  *
  */
 
+// https://www.c64-wiki.com/wiki/CIA
+
 #ifndef MOS6569A_H
 #define MOS6569A_H
 
@@ -24,7 +26,9 @@ protected:
 public:
 	CMOS6526A(BKE_MUTEX mutex);
 	~CMOS6526A();
-	
+
+    void Tick();
+
 	u8 GetDeviceID();
 	u8 Peek(u16 address);
 	int Poke(u16 address, u8 val); 	

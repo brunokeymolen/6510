@@ -187,7 +187,13 @@ private:
 	u8	r_x;
 	u8	r_y;
 	u8	r_p; //Processor Status register 
-	
+
+    long mips;
+    long mipsactive;
+
+    int timeNow, prevIrTime, startMips;
+    bool ir;
+
 	CBus* mBus;
 //	CMemory *mMemory;
 	CBus *mMemory;
@@ -214,6 +220,7 @@ public:
 	CMOS6510(BKE_MUTEX mutex);
 	~CMOS6510();
 	void Run();
+    void Tick();
 	//Stack
 	void Push(u8);
 	void Push16(u16);
@@ -289,7 +296,8 @@ private:
 	void F_TXA(u8 addressmode);
 	void F_TXS(u8 addressmode);
 	void F_TYA(u8 addressmode);
-
+private:
+    
 
 };
 

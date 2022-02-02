@@ -23,6 +23,8 @@ u8 CMOS6526A::GetDeviceID(){
 	return eBusCia1;
 }
 
+void CMOS6526A::Tick(){
+}
 
 u8 CMOS6526A::Peek(u16 address){
 cout << "6526A Peek:" << (int)address << endl;

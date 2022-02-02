@@ -46,7 +46,9 @@ class CMOS6569 : public CDevice{
 	public:
 		CMOS6569();
 		u8 GetDeviceID();
-			
+
+        void Tick();
+
 		u8 Peek(u16 address);
 		int Poke(u16 address, u8 val); 
 

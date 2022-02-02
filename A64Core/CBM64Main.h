@@ -22,7 +22,7 @@
 #include "MOS6526A.h"
 #include "CharRom.h"
 #include "General.h"
-
+#include <thread>
 
 class CBM64Main{
 	private:
@@ -41,6 +41,7 @@ class CBM64Main{
 	public:
 		int Init();
 		int Run();
+        int Tick();
 		int Stop();
 
 		int RunPriv();
@@ -55,7 +56,7 @@ class CBM64Main{
 		//int SavePRG
 		
 		void SetHiresTimeProvider(CHiresTime* hTime);
-	
+        
 };
 
 #endif

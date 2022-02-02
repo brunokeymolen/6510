@@ -99,7 +99,16 @@ CMOS6510::CMOS6510(BKE_MUTEX mutex){
 	r_x		= 0x00;
 	r_y		= 0x00;
 	r_p		= 0x20;
-	
+
+    mips = 0;
+    mipsactive = 0;
+
+	timeval t;
+	gettimeofday(&t, NULL);	
+	mips = 0;
+	startMips = prevIrTime = ((t.tv_sec * 1000000) + t.tv_usec) ;
+    ir = false;
+
     opnull = strdup("---");	
 
 	
@@ -370,6 +379,60 @@ u16 CMOS6510::Pop16(){
 
 
 /*
+ * Tick, when the runloop is external
+ */
+void CMOS6510::Tick() {
+		u8 cmd = mMemory->Peek(r_pc);
+		u16 prevPC = r_pc;
+
+		if(mOpcodes[cmd].matrixID != ILLEGAL_OPC && mOpcodes[cmd].opcodeFunction != NULL){
+			r_pc++; //increment (see: http://www.6502.org/tutorials/6502opcodes.html#PC)
+			(*this.*(mOpcodes[cmd].opcodeFunction))( (Mos6502AddressMode)mOpcodes[cmd].addressMode ); //C++ Function pointers have a weird syntax...
+		}else{
+			cout << "Illegal Opcode Error. Exit Emulator." << endl;
+			DBGTraceLine(cmd, prevPC);
+			cout << "Opcode = 0x" << hex << setfill('0') << setw(2)  << (int)cmd << ", address = 0x" << setw(4) << r_pc << endl;
+			CUtil::HexDumpMemory(mMemory, r_pc , 64);
+			return;
+		}
+
+		mips++;
+		mipsactive++;
+		if(mipsactive >= 25000){		
+			//IRQ
+			struct timeval t;
+            gettimeofday(&t, NULL);	
+			timeNow = ((t.tv_sec * 1000000) + t.tv_usec); //mHiresTime->GetMicrosecondsLo();
+			if(ir){
+				if(timeNow - prevIrTime >= 20000){
+					if(ISFLAG(FLAG_I) == 0){
+						//Maskable IRQ
+						IRQ();
+					}
+					//Non Maskable IRQ
+//					NMI();
+					prevIrTime = timeNow;
+				}
+			}else{
+				if(timeNow - prevIrTime >= 500000){
+					ir = true; // Enable IR
+					prevIrTime = timeNow;
+				}
+			}//ir
+				
+			//MIPS
+			if(timeNow - startMips >= 5000000){
+				cout << "mips (*1000) = " << dec << (mips / 1000) / 5 << endl;
+				mips = 0;
+				startMips = timeNow;
+			}
+	
+		}
+	
+
+	}
+
+/*
  * Run Loop
  */
 void CMOS6510::Run(){
@@ -410,7 +473,6 @@ void CMOS6510::Run(){
 		#ifdef DEBUG_CONSISTENCY_CHECK
 		mOpCnt = mOpCnt + 1;
 		#endif
-
 		/* DEBUG
 		if(mOpCnt == 0x996FA){
 			u8 bufPos = mBus->Peek(0xC6);

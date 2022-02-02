@@ -38,6 +38,8 @@ u8 CMOS6569::GetDeviceID(){
 	return eBusVic;
 }
 
+void CMOS6569::Tick(){
+}
 
 u8 CMOS6569::Peek(u16 address){
 //cout << "6569 Peek:" << (int)address << endl;
@@ -52,6 +54,7 @@ u8 CMOS6569::Peek(u16 address){
 
 
 int CMOS6569::Poke(u16 address, u8 val){
+    //std::cout << "Poke (mos6596)" << std::endl;
 	VICRect rect;
 	u8 v; //Vertical (Y) position of char
 	u8 cl; //character line
