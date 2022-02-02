@@ -67,20 +67,16 @@ public:
     }
 public:
     void DrawPixels(u8* screenBuffer, VICRect* area) {
-       int a = *activescreen_ + 1 % 2;
-      std::cout << "drawpix " << std::endl; 
-       *activescreen_ = a;
     }
     void DrawChar(u16 address, u8 c) {
-      //std::cout << "drawchar at address: " << address << " char: " << c << std::endl; 
-
     }
     void DrawChars(u8* memory) {
       std::cout << "\033[0;0H" << std::endl; 
+      std::cout << "\u001b[44m" << std::endl; 
       for (int y=0;y<25;y++) {
           for (int x=0;x<40;x++) {
             uint8_t m = memory[y*40+x];
-            char c = ' ';
+            char c = '_';
             if (m < 128) {
                 c = CMOS6569TextMap[m]; 
             }
@@ -88,6 +84,7 @@ public:
           }
           std::cout << std::endl;
       }
+      std::cout << "\u001b[0m" << std::endl; 
     }
 public:
 };
@@ -125,10 +122,9 @@ int main(int argc, char* argv[]) {
 
     
    // cbm64->Run();
-
-    std::cout << "draw some" << std::endl;
+    
+    std::cout << "\033c" << std::endl;
     draw();
-    std::cout << "end draw some" << std::endl;
 }
 
 
