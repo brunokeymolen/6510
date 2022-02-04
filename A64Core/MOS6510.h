@@ -155,6 +155,12 @@ typedef struct _MOS6502Opcodes{
 	char description[50];
 }MOS6502Opcodes;
 
+typedef struct _MOS6502Cycles{
+	MOS6502Instruction ID;
+	int cycles[ADDRESS_MODE_MAX]; //order see eMos6502AddressMode
+}MOS6502Cycles;
+
+
 #define _x__ 0x02
 
 typedef struct _MOS6502OpcodesLinear{
@@ -163,6 +169,7 @@ typedef struct _MOS6502OpcodesLinear{
 	char* assembly;
 	char* info;
 	void(CMOS6510::*opcodeFunction)(u8); //Mos6502AddressMode		
+    int cycles;
 }MOS6502OpcodesLinear;
 
 #define OPCODESMAX 256
@@ -188,6 +195,7 @@ private:
 	u8	r_y;
 	u8	r_p; //Processor Status register 
 
+    uint64_t _cycles = 0;
     long mips;
     long mipsactive;
 
@@ -204,7 +212,7 @@ private:
 	void PrintOperands(u8 addressMode, u16 pc);
 	void PrintStatusBits();
 
-	BKE_MUTEX mMutex;
+	//BKE_MUTEX mMutex;
 	CHiresTime* mHiresTime;
 
 //#ifdef DEBUG_CONSISTENCY_CHECK	
@@ -220,7 +228,7 @@ public:
 	CMOS6510(BKE_MUTEX mutex);
 	~CMOS6510();
 	void Run();
-    void Tick();
+    int Tick();
 	//Stack
 	void Push(u8);
 	void Push16(u16);
@@ -231,7 +239,9 @@ public:
 	bool DBGRunOneInstruction(u16* pc, u16* sp, u8* a, u8* x, u8* y, u8* p);
 	void DBGTraceLine(u8 cmd, u16 prevPC);
 	void SetHiresTime(CHiresTime* hiresTime);
-	
+    
+    uint64_t GetCycles();
+
 private:
 	bool GetOperandAddress(u8 addressMode, u16* address);
 	void IRQ();

@@ -27,13 +27,13 @@ void CMOS6526A::Tick(){
 }
 
 u8 CMOS6526A::Peek(u16 address){
-cout << "6526A Peek:" << (int)address << endl;
+//cout << "6526A Peek:" << (int)address << endl;
 	return mBus->PeekDevice(eBusRam,address);
 }
 
 
 int CMOS6526A::Poke(u16 address, u8 val){
-cout << "6526A Poke:" << (int)address << ", m=" << (int)val << endl;
+//cout << "6526A Poke:" << (int)address << ", m=" << (int)val << endl;
 	mBus->PokeDevice(eBusRam,address,val);
 	return 0;
 }	
@@ -42,7 +42,7 @@ int CMOS6526A::AddKeyStroke(char c){
 	BKE_MUTEX_LOCK(mMutex);
 	
 	u8 bufPos = mBus->Peek(0xC6);
-cout << (int)bufPos;	
+//cout << (int)bufPos;	
 	if(bufPos >= 10){
 		return -1;
 	}

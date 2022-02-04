@@ -37,9 +37,9 @@ int CBM64Main::Init(){
 
 int CBM64Main::Tick(){
     mVic->Tick();
-	mProcessor->Tick();
+	int cycles = mProcessor->Tick();
     mCia1->Tick();
-    return 0;
+    return cycles;
 }
 
 int CBM64Main::Run(){
@@ -106,6 +106,10 @@ void CBM64Main::SetHiresTimeProvider(CHiresTime* hTime){
 	mProcessor->SetHiresTime(hTime);
 }
 
+uint64_t CBM64Main::GetCycles(){
+    return mProcessor->GetCycles();
+}
+
 
 void* CBM64ThreadProc(void* lpParameter){
 std::cout << "CBM64ThreadProc " << std::endl;	
@@ -113,7 +117,6 @@ std::cout << "CBM64ThreadProc " << std::endl;
 	pThis->RunPriv();
 	return NULL;
 }
-
 
 
 

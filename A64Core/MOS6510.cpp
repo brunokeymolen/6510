@@ -5,7 +5,8 @@
  *  Created by Bruno Keymolen on 05/06/08.
  *  Copyright 2008 - 2010 Arcanegra BVBA. All rights reserved.
  * 
- *  @TODO: Add Decimal Mode
+ *  @TODO:  Add Decimal Mode
+ *          Check 'JAM', like with 'PRINT 2^8'
  */
 
 #include "MOS6510.h"
@@ -56,7 +57,7 @@ static MOS6502Opcodes opcodeMatrix[] =
 	{ LDY,	0xA0,	0xA4,	0xB4,	_x__,	_x__,	_x__,	0xAC,	0xBC,	_x__,	_x__,	_x__,	_x__,	_x__,		"LDY",	"Load Y Register" },
 	{ LSR,	_x__,	0x46,	0x56,	_x__,	_x__,	0x4A,	0x4E,	0x5E,	_x__,	_x__,	_x__,	_x__,	_x__,		"LSR",	"Logical Shift Right" },
 	{ NOP,	_x__,	_x__,	_x__,	_x__,	0xEA,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,		"NOP",	"No Operation" },
-	{ ORA,	0x09,	0x05,	0x15,	_x__,	_x__,	_x__,	0x0D,	0x1D,	0x19,	_x__,	_x__,	_x__,	_x__,		"ORA",	"Logical Inclusive OR" },
+	{ ORA,	0x09,	0x05,	0x15,	_x__,	_x__,	_x__,	0x0D,	0x1D,	0x19,	_x__,	0x01,	0x02,	_x__,		"ORA",	"Logical Inclusive OR" },
 	{ PHA,	_x__,	_x__,	_x__,	_x__,	0x48,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,		"PHA",	"Push Accumulator" },
 	{ PHP,	_x__,	_x__,	_x__,	_x__,	0x08,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,		"PHP",	"Push Processor Status" },
 	{ PLA,	_x__,	_x__,	_x__,	_x__,	0x68,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,	_x__,		"PLA",	"Pull Accumulator" },
@@ -85,10 +86,73 @@ static MOS6502Opcodes opcodeMatrix[] =
 };
 
 
+//http://www.c64os.com/post/6502instructions
+const MOS6502Cycles cycleMatrix[] =
+{
+    /*		0	    1		2		3		4		5		6		7		8		9		10		11		12	
+	  ID	IMMED,	ZERO,	ZERO_X,	ZERO_Y,	IMPL,	ACCU,	ABSO,	ABSO_X,	ABSO_Y,	INDI,	INDI_X,	INDI_Y,	IND_REL */
+	{ ADC,	2,	    3,	    4,		0,		0,	 	0,		4,		4,	    4,	    0,	    6,	    5,	    0           },
+	{ AND,	2,	    3,	    4,		0,		0,	 	0,		4,		4,	    4,	    0,	    6,	    5,	    0           },
+	{ ASL,	0,	    5,	    6,		0,		0,	 	2,		6,		7,	    0,	    0,	    6,	    0,	    0           },
+	{ BCC,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+	{ BCS,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+	{ BEQ,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+    { BIT,	0,	    3,	    0,	    0,	    0,	    0,	    4,	    0,	    0,	    0,	    6,	    0,	    0   	    },	
+    { BMI,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+	{ BNE,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+	{ BPL,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+	{ BRK,	0,	    0,	    0,		0,		7,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    0           },
+	{ BVC,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+	{ BVS,	0,	    0,	    0,		0,		0,	 	0,		0,		0,	    0,	    0,	    0,	    0,	    2           },
+    { CLC,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { CLD,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { CLI,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { CLV,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { CMP,	2,	    3,	    4,	    0,	    0,	    0,	    4,	    4,	    4,	    0,	    6,	    5,	    0   	    },	
+	{ CPX,	2,	    3,	    0,		0,		0,	 	0,		4,		0,	    0,	    0,	    0,	    0,	    0           },
+	{ CPY,	2,	    3,	    0,		0,		0,	 	0,		4,		0,	    0,	    0,	    0,	    0,	    0           },
+    { DEC,	0,	    5,	    6,	    0,	    0,	    0,	    6,	    7,	    0,	    0,	    0,	    0,	    0	    	},
+    { DEX,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { DEY,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { EOR,	2,	    3,	    4,	    0,	    2,	    0,	    4,	    4,	    4,	    0,	    6,	    5,	    0	    	},
+    { CLI,	0,	    5,	    6,	    0,	    0,	    0,	    6,	    7,	    0,	    0,	    0,	    0,	    0	    	},
+    { INX,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { INY,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { JMP,	0,	    0,	    0,	    0,	    0,	    0,	    3,	    0,	    0,	    5,	    0,	    0,	    0	    	},
+    { JSR,	0,	    0,	    0,	    0,	    0,	    0,	    6,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { LDA,	2,	    3,	    4,	    4,	    0,	    0,	    4,	    4,	    4,	    0,	    6,	    5,	    0	    	},
+    { LDX,	2,	    3,	    0,	    4,	    0,	    0,	    4,	    0,	    4,	    0,	    0,	    0,	    0	    	},
+    { LDY,	2,	    3,	    4,	    0,	    0,	    0,	    4,	    4,	    0,	    0,	    0,	    0,	    0	    	},
+    { LSR,	0,	    5,	    6,	    0,	    0,	    2,	    6,	    7,	    0,	    0,	    0,	    0,	    0	    	},
+    { NOP,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { ORA,	2,	    3,	    4,	    0,	    0,	    0,	    4,	    4,	    4,	    0,	    6,	    5,	    0	    	},
+    { PHA,	0,	    0,	    0,	    0,	    3,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { PHP,	0,	    0,	    0,	    0,	    3,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { PLA,	0,	    0,	    0,	    0,	    4,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { PLP,	0,	    0,	    0,	    0,	    4,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { ROL,	0,	    5,	    6,	    0,	    0,	    2,	    6,	    7,	    0,	    0,	    0,	    0,	    0	    	},
+    { ROR,	0,	    5,	    6,	    0,	    0,	    2,	    6,	    7,	    0,	    0,	    0,	    0,	    0	    	},
+    { RTI,	0,	    0,	    0,	    0,	    6,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { RTS,	0,	    0,	    0,	    0,	    6,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { SBC,	2,	    3,	    4,	    0,	    0,	    0,	    4,	    4,	    4,	    0,	    6,	    5,	    0	    	},
+    { SEC,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { SED,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { SEI,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { STA,	0,	    3,	    4,	    0,	    0,	    0,	    4,	    5,	    5,	    0,	    6,	    6,	    0	    	},
+    { STX,	0,	    3,	    0,	    4,	    0,	    0,	    4,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { STY,	0,	    3,	    4,	    0,	    0,	    0,	    4,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { TAX,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { TAY,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { TSX,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { TXA,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { TXS,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	},
+    { TYA,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	}
+};
+
 //CMOS6510::CMOS6510(CMemory* mem){
 CMOS6510::CMOS6510(BKE_MUTEX mutex){
 
-	mMutex = mutex;
+	//mMutex = mutex;
 	
 	mMemory = mBus = CBus::GetInstance();
 	
@@ -134,6 +198,7 @@ CMOS6510::CMOS6510(BKE_MUTEX mutex){
 					mOpcodes[listRow].addressMode = (u8)addressMode;
 					mOpcodes[listRow].assembly = opcodeMatrix[matrixRow].assembly;
 					mOpcodes[listRow].info = opcodeMatrix[matrixRow].description;
+					mOpcodes[listRow].cycles = cycleMatrix[matrixRow].cycles[addressMode];
 					switch(mOpcodes[listRow].matrixID){
 						case ADC:
 							mOpcodes[listRow].opcodeFunction = &CMOS6510::F_ADC;
@@ -381,21 +446,25 @@ u16 CMOS6510::Pop16(){
 /*
  * Tick, when the runloop is external
  */
-void CMOS6510::Tick() {
+int CMOS6510::Tick() {
 		u8 cmd = mMemory->Peek(r_pc);
 		u16 prevPC = r_pc;
+        _cycles = 0;
 
 		if(mOpcodes[cmd].matrixID != ILLEGAL_OPC && mOpcodes[cmd].opcodeFunction != NULL){
 			r_pc++; //increment (see: http://www.6502.org/tutorials/6502opcodes.html#PC)
-			(*this.*(mOpcodes[cmd].opcodeFunction))( (Mos6502AddressMode)mOpcodes[cmd].addressMode ); //C++ Function pointers have a weird syntax...
+			_cycles += mOpcodes[cmd].cycles;
+            (*this.*(mOpcodes[cmd].opcodeFunction))( (Mos6502AddressMode)mOpcodes[cmd].addressMode ); 
+            
 		}else{
 			cout << "Illegal Opcode Error. Exit Emulator." << endl;
 			DBGTraceLine(cmd, prevPC);
 			cout << "Opcode = 0x" << hex << setfill('0') << setw(2)  << (int)cmd << ", address = 0x" << setw(4) << r_pc << endl;
 			CUtil::HexDumpMemory(mMemory, r_pc , 64);
-			return;
+			exit(-1);
 		}
 
+        //IRQ's
 		mips++;
 		mipsactive++;
 		if(mipsactive >= 25000){		
@@ -422,14 +491,14 @@ void CMOS6510::Tick() {
 				
 			//MIPS
 			if(timeNow - startMips >= 5000000){
-				cout << "mips (*1000) = " << dec << (mips / 1000) / 5 << endl;
+				//cout << "mips (*1000) = " << dec << (mips / 1000) / 5 << endl;
 				mips = 0;
 				startMips = timeNow;
 			}
 	
 		}
 	
-
+        return _cycles;
 	}
 
 /*
@@ -590,7 +659,7 @@ void CMOS6510::Run(){
 				
 			//MIPS
 			if(timeNow - startMips >= 5000000){
-				cout << "mips (*1000) = " << dec << (mips / 1000) / 5 << endl;
+				//cout << "mips (*1000) = " << dec << (mips / 1000) / 5 << endl;
 				mips = 0;
 				startMips = timeNow;
 			}
@@ -641,6 +710,9 @@ void CMOS6510::DBGTraceLine(u8 cmd, u16 prevPC){
 }
 
 
+uint64_t CMOS6510::GetCycles() {
+    return _cycles;
+}
 
 /*
  * Returns the Address where the opcode has to find the information to execute 
@@ -783,6 +855,7 @@ void CMOS6510::F_ADC(u8 addressmode){
 	if(r_a == 0)SETFLAG(FLAG_Z);
 	if( (r_a & 0x80) > 0 ) SETFLAG(FLAG_N);
 	if( (s16)val > 127 || (s16)val < -128 ) SETFLAG(FLAG_V);
+
 }
 
 /*
@@ -918,7 +991,13 @@ void CMOS6510::F_BMI(u8 addressmode){
 	GetOperandAddress(addressmode, &address);
 	
 	if(ISFLAG(FLAG_N) == 1){
-		r_pc = r_pc + (s8)mMemory->Peek(address);
+        s8 delta = (s8)mMemory->Peek(address);
+        int oriPage = (int)((r_pc+1) / 256);
+		r_pc = r_pc + delta; 
+        _cycles++;
+        if ((int)(r_pc/256) != oriPage) {
+            _cycles++;
+        }
 	}
 }
  
@@ -936,15 +1015,23 @@ void CMOS6510::F_BNE(u8 addressmode){
 }
 
 /* 
- * BMI - Branch if Positive
+ * BPL - Branch on Plus
  */
 void CMOS6510::F_BPL(u8 addressmode){
 	u16 address;
 	GetOperandAddress(addressmode, &address);
 	
 	if(ISFLAG(FLAG_N) == 0){
-		r_pc = r_pc + (s8)mMemory->Peek(address); 
+        s8 delta = (s8)mMemory->Peek(address);
+        int oriPage = (int)((r_pc+1) / 256);
+		r_pc = r_pc + delta; 
+        _cycles++;
+
+        if ((int)(r_pc/256) != oriPage) {
+            _cycles++;
+        }
 	}
+    
 }
  
 /* 

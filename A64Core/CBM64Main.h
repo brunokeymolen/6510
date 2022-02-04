@@ -56,6 +56,8 @@ class CBM64Main{
 		//int SavePRG
 		
 		void SetHiresTimeProvider(CHiresTime* hTime);
+
+        uint64_t GetCycles();
         
 };
 

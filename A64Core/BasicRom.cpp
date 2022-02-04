@@ -46,7 +46,7 @@ u8 CBasicRom::Peek(u16 address){
 
 int CBasicRom::Poke(u16 address, u8 val){
 	//Can not poke into ROM
-	cout << "CBasicRom Poke:" << (int)address << ", m=" << (int)val << endl;
+	//cout << "CBasicRom Poke:" << (int)address << ", m=" << (int)val << endl;
 	CBus::GetInstance()->PokeDevice(eBusRam,address,val);
 
 	return -1;

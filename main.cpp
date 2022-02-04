@@ -13,8 +13,16 @@
 #include "A64Core/CBM64Main.h"
 #include "A64Core/General.h"
 
+
+class HiresTimeImpl;
+
 CBM64Main* cbm64 = NULL;
 bool _run = true;
+HiresTimeImpl* hiresTime_ = NULL;
+uint64_t total_cycles = 0;
+uint64_t start = 0;
+char charbuffer[2][320*200];
+std::atomic<int> activebuffer = 0;
 
 static char CMOS6569TextMap[128] = 
 				 {    '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
@@ -25,6 +33,11 @@ static char CMOS6569TextMap[128] =
                       'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
                       ' ','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
                       'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x' };
+
+uint64_t now() {
+    uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    return now;
+}
 
 
 class HiresTimeImpl : public CHiresTime {
@@ -74,12 +87,47 @@ public:
     }
     void DrawChar(u16 address, u8 c) {
     }
+    int cnt_ = 0;
     void DrawChars(u8* memory) {
+        int a = (activebuffer + 1) % 2;
+        memcpy(charbuffer[a], memory, 320*200);
+        activebuffer = a;
+    }
+public:
+};
+
+void runloop() {
+    bool run = true;
+    int target_cycles = 1023000; //PAL
+    int cycles_100_ms = target_cycles / 10;
+    int cycles = 0;
+    start = now();
+
+    while (run) {
+        cycles = 0;
+        uint64_t ts = now();
+        while(true) {
+            cycles += cbm64->Tick();
+            if (cycles >= cycles_100_ms) {
+                total_cycles += cycles;
+                uint64_t elapsed = now() - ts;
+                if (elapsed < 100) {
+                    usleep((100-elapsed) * 1000);
+                }
+                cycles = cycles - cycles_100_ms;
+                break;
+            }
+        }
+    }
+
+}
+
+void uiloop() {
       std::cout << "\033[0;0H" << std::endl; 
       std::cout << "\u001b[44m" << std::endl; 
       for (int y=0;y<25;y++) {
           for (int x=0;x<40;x++) {
-            uint8_t m = memory[y*40+x];
+            uint8_t m = charbuffer[activebuffer][y*40+x];
             char c = '_';
             if (m < 128) {
                 c = CMOS6569TextMap[m]; 
@@ -89,20 +137,7 @@ public:
           std::cout << std::endl;
       }
       std::cout << "\u001b[0m" << std::endl; 
-    }
-public:
-};
-
-
-
-void draw() {
-
-    bool run = true;
-
-    while (run) {
-        cbm64->Tick();
-    }
-
+//        std::cout << "cycles " << total_cycles << "  " << 1000*(total_cycles/(now()-start)) << std::endl;
 }
 
 //https://stackoverflow.com/questions/36428098/c-how-to-check-if-my-input-bufferstdin-is-empty
@@ -145,34 +180,12 @@ std::vector<char> getKeystroke() {
 
 
 
-//https://stackoverflow.com/questions/421860/capture-characters-from-standard-input-without-waiting-for-enter-to-be-pressed
-char getch() {
-        char buf = 0;
-        struct termios old = {0};
-        if (tcgetattr(0, &old) < 0)
-                perror("tcsetattr()");
-        old.c_lflag &= ~ICANON;
-        old.c_lflag &= ~ECHO;
-        old.c_cc[VMIN] = 1;
-        old.c_cc[VTIME] = 0;
-        if (tcsetattr(0, TCSANOW, &old) < 0)
-                perror("tcsetattr ICANON");
-        if (read(0, &buf, 1) < 0)
-                perror ("read()");
-        old.c_lflag |= ICANON;
-        old.c_lflag |= ECHO;
-        if (tcsetattr(0, TCSADRAIN, &old) < 0)
-                perror ("tcsetattr ~ICANON");
-        return (buf);
-}
-
 const char ESC[2] = { 27, -1 };
 const char KEYUP[4] = { 27, 91, 65, -1 }; 
 const char KEYDOWN[4] = { 27, 91, 66, -1 }; 
 const char KEYLEFT[4] = { 27, 91, 68, -1 }; 
 const char KEYRIGHT[4] = { 27, 91, 67, -1 }; 
 
-HiresTimeImpl* hiresTime_ = NULL;
 EMCScreen* emcScreen_ = NULL;
 
 bool isKeystroke(std::vector<char>& keystroke, const char* k) {
@@ -190,6 +203,7 @@ bool isKeystroke(std::vector<char>& keystroke, const char* k) {
 }
 
 int main(int argc, char* argv[]) {
+    start = now();
     cbm64 = new CBM64Main();
 	cbm64->Init();
 	
@@ -229,8 +243,16 @@ int main(int argc, char* argv[]) {
         }
     });
 
+    std::thread t2([=]{
+        while(_run) {
+            uiloop();
+            usleep(100000);
+        }
+    });
+
+
     std::cout << "\033c" << std::endl;
-    draw();
+    runloop();
 }
 
 

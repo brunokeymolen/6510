@@ -98,6 +98,11 @@ void drawScreen() {
     uint8_t lightBLue[4] = {154, 145, 221, 0};   
 
 
+    int target_cycles = 1023000; //PAL
+    int cycles_10_ms = target_cycles / 100;
+    int cycles = 0;
+
+
     int a = *activescreen_; 
     for (int x=0;x<320;x++) {
         for (int y=0;y<200;y++) {
@@ -129,8 +134,12 @@ void drawScreen() {
     SDL_Flip(screen);
 
     std::cout << "Tick from UI loop" << std::endl;
-    for (int i=0;i<1500;i++) {
-        cbm64->Tick();
+    while(true) {
+        cycles += cbm64->Tick();
+        if (cycles >= 32000) { //cycles_10_ms) {
+            cycles = cycles - cycles_10_ms; 
+            break;
+        }
     }
 }
 
@@ -205,6 +214,6 @@ int main(int argc, char* argv[]) {
     //cbm64->Run();
 
     std::cout << "draw some" << std::endl;
-    emscripten_set_main_loop(drawScreen, 60, 1);
+    emscripten_set_main_loop(drawScreen, 30, 1);
     std::cout << "end draw some" << std::endl;
 }
