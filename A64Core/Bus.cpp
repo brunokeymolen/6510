@@ -32,7 +32,6 @@ CBus* CBus::GetInstance(){
 
 
 CBus::CBus(){
-	//mDeviceCache = NULL;
 	memset(&mIO, 0, sizeof(sBusDevice));
 	memset(&mVic, 0, sizeof(sBusDevice));
 	memset(&mCharRom, 0, sizeof(sBusDevice));
@@ -111,7 +110,6 @@ u8 CBus::Peek(u16 address){
 			/* Basic ROM */
 			if( address >= 0xA000 && address <= 0xBFFF ){
 				if(mHiRam && mLoRam){
-//cout << "Basic ROM" << endl;
 					return mBasicRom.device->Peek(address);
 				}else{
 					return mRam.device->Peek(address);
@@ -122,10 +120,8 @@ u8 CBus::Peek(u16 address){
 			if( address >=0xD000 && address <= 0xDFFF ){
 				if(mHiRam || mLoRam){
 					if(mCharen){
-//cout << "IO" << edl;
 						return mIO.device->Peek(address);
 					}else{
-//cout << "CharRom." << endl;
 						return mCharRom.device->Peek(address);
 					}
 				}else{
@@ -136,7 +132,6 @@ u8 CBus::Peek(u16 address){
 			/* Kernal ROM */	
 			if(address >= 0xE000 && address <= 0xFFFF){
 				if(mHiRam){
-//cout << "KernalRom." << endl;
 					return mKernalRom.device->Peek(address);
 				}else{
 					return mRam.device->Peek(address);
@@ -145,7 +140,6 @@ u8 CBus::Peek(u16 address){
 			
 			/* Byte 0 (Processor Port) */
 			if( address == 0x0000 ){
-//cout << "Byte 0" << endl;
 				return 0x2F;
 			}
 		
@@ -153,18 +147,11 @@ u8 CBus::Peek(u16 address){
 			/* --- CHECK BELOW --- */	
 			/* VIC IO - CHANGE THIS*/
 			if(address >= mVic.fromAddress && address <= mVic.toAddress){
-//cout << "VIC." << endl;
 				return mVic.device->Peek(address);
 			}
 			
-			/*  */
-//			}else if(address >= mCia1.fromAddress && address <= mCia1.toAddress){
-//cout << "CIA1" << endl;
-//				return mCia1.device->Peek(address);
-			/* --------------------*/
 			
 			/* RAM */
-//cout << "RAM" << endl;
 			return mRam.device->Peek(address);
 			
 			break;
@@ -186,19 +173,14 @@ u8 CBus::Peek(u16 address){
 void CBus::Poke(u16 address, u8 m){
 	switch(mMemoryMode){
 		case eBusModeProcesor:
-		/*	if(address >= mCharRom.fromAddress && address <= mCharRom.toAddress){
-				 mCharRom.device->Poke(address,m);
-			}else*/ 
 			
 			if(address == 0x0000 || address == 0x0001){
-	//			cout << "WRITE 0x" << hex << (int)address << " val=0x" << (int)m << ", port0=" << (int)mPort0 << ", port1=" << (int)mPort1 << endl;
 			}
 			if(address == 0x0001){
 				//IO Port
 				{
 					u8 r0 = mPort1; //mRam.device->Peek(1);
 
-	//				cout << "WRITE 0x0001 : " << hex << (int)m << " & " << (int)mPort1 << " (" << (int)r0 << ")";
 					
 					u8 ioMem = m;// (r0 & m);
 					mPort1 = ioMem;
@@ -210,10 +192,7 @@ void CBus::Poke(u16 address, u8 m){
 					
 					mRam.device->Poke(1,m);
 					
-//					cout  << " = " << hex << (int)ioMem << endl;
 				}
-//			}else if( address >=0xD000 && address <= 0xDFFF ){
-//				mIO.device->Poke(address,m);
 
 			}else if(address >= mIO.fromAddress && address <= mIO.toAddress){
 				 mIO.device->Poke(address,m);
@@ -243,8 +222,6 @@ u16 CBus::Peek16(u16 address){
 	u16 ret = 0;
 	ret = Peek(address+1) << 8;
 	ret = ret | Peek(address);
-//	((u8*)&ret)[0] = Peek(address);
-//	((u8*)&ret)[1] = Peek(address+1);
 	return ret;
 }
 

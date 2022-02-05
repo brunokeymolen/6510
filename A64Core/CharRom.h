@@ -21,7 +21,6 @@ class CCharRom : public CDevice{
 	private:
 		u8 mRom[CHARROMSIZE];
 		CCharRom& operator+=(CCharRom&);
-	//	CBasicRom(CBasicRom&);
 	
 	protected:
 		void GetDefaultAddressRange(u16 *from, u16 *to);

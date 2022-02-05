@@ -51,17 +51,11 @@ u8 CBasicRom::GetDeviceID(){
 }
 
 u8 CBasicRom::Peek(u16 address){
-//cout << "CBasicRom Peek:" << (int)address << endl;
-
-//if(address - BASICROMSTART == 876){
-//exit(-2);
-//}
 	return *(mRom+(address - BASICROMSTART));
 }
 
 int CBasicRom::Poke(u16 address, u8 val){
 	//Can not poke into ROM
-	//cout << "CBasicRom Poke:" << (int)address << ", m=" << (int)val << endl;
 	CBus::GetInstance()->PokeDevice(eBusRam,address,val);
 
 	return -1;

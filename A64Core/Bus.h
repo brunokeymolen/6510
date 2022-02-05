@@ -41,8 +41,6 @@ typedef enum _e_BusMode{
 class CBus{
 private:
 	static CBus* _instance;
-//	std::vector <sBusDevice*> mDevices;
-//	sBusDevice* mDeviceCache;
 	
 	sBusDevice mVic; //Video Chip, VIC-II (6569)
 	sBusDevice mRam;

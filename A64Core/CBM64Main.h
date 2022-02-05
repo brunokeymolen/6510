@@ -11,12 +11,10 @@
 #define CBM64MAIN_H
 
 #include <iostream>
-//#include "UTestOpcode.h"
 #include "MOS6510.h"
 #include "MOS6569.h"
 #include "Bus.h"
 #include "Ram.h"
-//#include "Memory.h"
 #include "BasicRom.h"
 #include "KernalRom.h"
 #include "MOS6526A.h"
@@ -40,11 +38,9 @@ class CBM64Main{
 	protected:
 	public:
 		int Init();
-//		int Run();
         int Cycle();
 		int Stop();
 
-		//int RunPriv();
 		int SetDisassemble(int d);
 		int GetDisassemble();
 		
@@ -53,7 +49,6 @@ class CBM64Main{
 
 		int LoadApp(char* fname);
 		int LoadBasic(char* fname);
-		//int SavePRG
 		
 		void SetHiresTimeProvider(CHiresTime* hTime);
 

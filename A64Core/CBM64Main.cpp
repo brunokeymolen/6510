@@ -8,10 +8,6 @@
  */
 
 #include "CBM64Main.h"
-//#include "UTestOpcode.h"
-
-//void* CBM64ThreadProc(void* lpParameter);
-
 
 int CBM64Main::Init(){
 	std::cout << "---------------------------------\n";
@@ -42,27 +38,6 @@ int CBM64Main::Cycle(){
     return cycles;
 }
 
-#if 0
-int CBM64Main::Run(){
-    std::cout << "create thread" << std::endl;
-	BKE_THREAD_CREATE(mCBM64Thread, &CBM64ThreadProc, this);
-	return 0;
-}
-
-
-int CBM64Main::RunPriv(){
-	#if 1 //Disable this for Unit Testing
-		mProcessor->Run();
-	#else
-		//Unit tests
-		CUTestOpcode* testOpcode = new CUTestOpcode(mProcessor, mBus);
-		testOpcode->StartTest();
-	#endif
-
-	return 0;
-}
-#endif	
-	
 int CBM64Main::Stop(){	
 	delete mProcessor;
 	delete mVic;
@@ -111,13 +86,5 @@ uint64_t CBM64Main::GetCycles(){
     return mProcessor->GetCycles();
 }
 
-#if 0
-void* CBM64ThreadProc(void* lpParameter){
-std::cout << "CBM64ThreadProc " << std::endl;	
-	CBM64Main* pThis = (CBM64Main*)lpParameter;
-	pThis->RunPriv();
-	return NULL;
-}
-#endif
 
 

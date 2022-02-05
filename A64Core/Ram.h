@@ -19,7 +19,6 @@ class CRam : public CDevice{
 	private:
 		u8 mRam[MAXRAM];
 		CRam& operator+=(CRam&);
-	//	CRam(CRam&);
 	
 	protected:
 		void GetDefaultAddressRange(u16 *from, u16 *to);

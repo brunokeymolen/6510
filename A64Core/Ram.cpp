@@ -26,12 +26,10 @@ u8 CRam::GetDeviceID(){
 }
 
 u8 CRam::Peek(u16 address){
-//cout << "RAM Peek:" << (int)address << endl;
 	return *(mRam+address);
 }
 
 int CRam::Poke(u16 address, u8 val){
-//cout << "RAM Poke:" << (int)address << ", m=" << (int)val << endl;
 	*(mRam+address) = val;
 	return 0;
 }

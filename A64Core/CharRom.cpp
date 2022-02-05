@@ -51,7 +51,6 @@ u8 CCharRom::GetDeviceID(){
 }
 
 u8 CCharRom::Peek(u16 address){
-//cout << "CCharRom Peek:" << (int)address << endl;
 
 	return *(mRom+(address - CHARROMSTART));
 }

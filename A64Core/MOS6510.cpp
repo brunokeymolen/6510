@@ -12,12 +12,6 @@
 #include "MOS6510.h"
 #include "Util.h"
 #include <sys/time.h>
-//#include <stdio.h>
-
-//#define DEBUG_TRACE_OPCODE
-//#define DEBUG_CONSISTENCY_CHECK
-//#define DEBUG_DISABLE_IRQ
-//#define DEBUG_SLOW_IRQ 60
 
 static MOS6502Opcodes opcodeMatrix[] = 
 {
@@ -149,11 +143,8 @@ const MOS6502Cycles cycleMatrix[] =
     { TYA,	0,	    0,	    0,	    0,	    2,	    0,	    0,	    0,	    0,	    0,	    0,	    0,	    0	    	}
 };
 
-//CMOS6510::CMOS6510(CMemory* mem){
 CMOS6510::CMOS6510(BKE_MUTEX mutex){
 
-	//mMutex = mutex;
-	
 	mMemory = mBus = CBus::GetInstance();
 	
 	//Init the registers
@@ -405,13 +396,11 @@ void CMOS6510::SetHiresTime(CHiresTime* hiresTime){
 void CMOS6510::Push(u8 val){
 	mMemory->Poke(STACKOFFSET + r_sp, val);
 	r_sp--;
-//	CUtil::HexDumpMemory(mMemory,STACKOFFSET+255-16,32);
 }
 
 
 u8 CMOS6510::Pop(){
 	r_sp++;
-//	CUtil::HexDumpMemory(mMemory,STACKOFFSET+255-16,32);
 	return mMemory->Peek(STACKOFFSET + r_sp);
 }
 
@@ -497,178 +486,6 @@ int CMOS6510::Cycle() {
         return _cycles;
 	}
 
-#if 0
-/*
- * Run Loop
- */
-void CMOS6510::Run(){
-	u8 cmd;
-	u16 prevPC;
-	timeval t;//, start, end, irqstart, now, previr;
-	long mips, mipsactive;
-	bool ir;
-	int prevIrTime, timeNow, startMips;
-
-	
-	#ifdef DEBUG_TRACE_OPCODE 
-		cout << hex << setfill('0') << uppercase; 
-		int trace = 1;
-		#ifdef DEBUG_CONSISTENCY_CHECK
-			mOpCnt = 0;
-			trace=1;
-		#endif	
-	#endif
-
-//mDisassemble = 0;
-//trace = 0;	
-	
-	ir = false;
-//	gettimeofday(&start, NULL);	
-	gettimeofday(&t, NULL);	
-	
-
-	mips = 0;
-	startMips = prevIrTime = ((t.tv_sec * 1000000) + t.tv_usec) ;//mHiresTime->GetMicrosecondsLo();
-	
-	
-	while(1){
-//		BKE_MUTEX_LOCK(mMutex);
-	
-
-		
-		#ifdef DEBUG_CONSISTENCY_CHECK
-		mOpCnt = mOpCnt + 1;
-		#endif
-		/* DEBUG
-		if(mOpCnt == 0x996FA){
-			u8 bufPos = mBus->Peek(0xC6);
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, '?');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, 'S');
-			mBus->Poke(0xC6, bufPos+1);
-			
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, 'I');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, 'N');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, '(');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, '6');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, '3');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, ')');
-			mBus->Poke(0xC6, bufPos+1);
-
-			bufPos = mBus->Peek(0xC6);			
-			mBus->PokeDevice(eBusRam, 0x0277+bufPos, 0x0D);
-			mBus->Poke(0xC6, bufPos+1);
-
-		}
-	*/
-	
-		cmd = mMemory->Peek(r_pc);
-		prevPC = r_pc;
-		
-//		if(r_pc==0xFD9A){
-//			trace = 1;
-//			cout << "done" << endl;
-//		}
-//		if(r_pc==0xFF73){
-//			cout << "done" << endl;
-//		}
-		
-		
-		
-		if(mOpcodes[cmd].matrixID != ILLEGAL_OPC && mOpcodes[cmd].opcodeFunction != NULL){
-			r_pc++; //increment (see: http://www.6502.org/tutorials/6502opcodes.html#PC)
-			(*this.*(mOpcodes[cmd].opcodeFunction))( (Mos6502AddressMode)mOpcodes[cmd].addressMode ); //C++ Function pointers have a weird syntax...
-		}else{
-			cout << "Illegal Opcode Error. Exit Emulator." << endl;
-			DBGTraceLine(cmd, prevPC);
-			cout << "Opcode = 0x" << hex << setfill('0') << setw(2)  << (int)cmd << ", address = 0x" << setw(4) << r_pc << endl;
-			CUtil::HexDumpMemory(mMemory, r_pc , 64);
-//			BKE_MUTEX_UNLOCK(mMutex);
-			return;
-		}
-		
-#ifdef DEBUG_TRACE_OPCODE
-		if(trace == 1 || mDisassemble > 0){
-			DBGTraceLine(cmd, prevPC);
-		}else{
-			mOpcodeDebug->SkipTraceLine();
-		}
-
-		if(mDisassemble > 1){
-			usleep(mDisassemble*1000);
-		}
-#endif		
-//		BKE_MUTEX_UNLOCK(mMutex);
-		
-//cout << "mHiresTime->GetMicroseconds(" << mHiresTime->GetMicroseconds() << ") - prevIrTime:" << prevIrTime << endl;
-		mips++;
-		mipsactive++;
-#ifndef DEBUG_DISABLE_IRQ
-		
-		//if(mipsactive >= 250){		
-		if(mipsactive >= 25000){		
-			//IRQ
-			gettimeofday(&t, NULL);	
-			timeNow = ((t.tv_sec * 1000000) + t.tv_usec); //mHiresTime->GetMicrosecondsLo();
-			if(ir){
-#ifdef DEBUG_SLOW_IRQ			
-				if(timeNow - prevIrTime >= 20000 * DEBUG_SLOW_IRQ){
-#else
-				if(timeNow - prevIrTime >= 20000){
-#endif				
-					if(ISFLAG(FLAG_I) == 0){
-						//Maskable IRQ
-						IRQ();
-					}
-					//Non Maskable IRQ
-//					NMI();
-					prevIrTime = timeNow;
-				}
-			}else{
-#ifdef DEBUG_SLOW_IRQ			
-				if(timeNow - prevIrTime >= 500000 * DEBUG_SLOW_IRQ){
-#else				
-				if(timeNow - prevIrTime >= 500000){
-#endif				
-					ir = true; // Enable IR
-		//			trace = 1;
-					prevIrTime = timeNow;
-				}
-			}//ir
-				
-			//MIPS
-			if(timeNow - startMips >= 5000000){
-				//cout << "mips (*1000) = " << dec << (mips / 1000) / 5 << endl;
-				mips = 0;
-				startMips = timeNow;
-			}
-	
-		}
-		
-#endif // DEBUG_DISABLE_IRQ
-
-        
-	}
-}
-#endif
 
 void CMOS6510::DBGTraceLine(u8 cmd, u16 prevPC){
 		
@@ -803,7 +620,6 @@ bool CMOS6510::DBGRunOneInstruction(u16* pc, u16* sp, u8* a, u8* x, u8* y, u8* p
 	r_p = *p;
 	
 	u8 cmd = mMemory->Peek(r_pc);
-//	cout << "r_pc = 0x" << setfill('0') << setw(4) << hex << r_pc << ", 0x" << setw(2) << (int)cmd << endl;
 		
 	if(mOpcodes[cmd].matrixID != ILLEGAL_OPC && mOpcodes[cmd].opcodeFunction != NULL){
 		r_pc++; //increment (see: http://www.6502.org/tutorials/6502opcodes.html#PC)
@@ -1036,7 +852,6 @@ void CMOS6510::F_BPL(u8 addressmode){
  * @TODO: Check
  */
 void CMOS6510::F_BRK(u8 addressmode){
-cout << "BRK" << endl;
 //	r_pc++;	
 	SETFLAG(FLAG_B);
 	Push16( r_pc );
@@ -1697,7 +1512,6 @@ void CMOS6510::F_SBC(u8 addressmode){
 
 	acalc = r_a - m - ( 1 - ISFLAG(FLAG_C));
 	
-//cout << "m=0x"<< setw(2) << hex << (int)m;
 
 	sbit = 0;
 	if((r_a & 0x80) > 0){
@@ -1705,13 +1519,9 @@ void CMOS6510::F_SBC(u8 addressmode){
 	}
 
 	m = (~m);
-//cout << ", ~m=0x"<< setw(2) << hex << (int)m;
-
 	m = m + ISFLAG(FLAG_C);
-//cout << ", m+C=0x"<< setw(2) << hex << (int)m;
 
 	val = r_a + m;
-//cout << ", val=0x"<< setw(4) << hex << (int)val;
 
 	CLRFLAG(FLAG_V);		
 	CLRFLAG(FLAG_C);	
@@ -1720,9 +1530,6 @@ void CMOS6510::F_SBC(u8 addressmode){
 
 	
 	r_a = (u8)val;
-
-//cout << ", ra=0x"<< setw(2) << hex << (int)r_a;
-//cout << "]";
 
 		
 	if( (r_a & 0x80) > 0){
@@ -1736,7 +1543,6 @@ void CMOS6510::F_SBC(u8 addressmode){
 	if(acalc >= 0 && acalc <= 0xFF){  //Check This(!!!!)
 		SETFLAG(FLAG_C);
 	}
-//	if( !((sbit > 0 && (sbit & r_a) > 0) || (sbit == 0 && (sbit & r_a) == 0)) ){
 	if(acalc < -128 || acalc > 127){
 		SETFLAG(FLAG_V);
 	}

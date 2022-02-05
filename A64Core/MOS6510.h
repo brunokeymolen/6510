@@ -175,13 +175,6 @@ typedef struct _MOS6502OpcodesLinear{
 #define OPCODESMAX 256
 
 
-/*
- * Little & Big Endian Conversions
- */
-//#define ENDIAN LITTLE 
-//#define NTOHS(ne) 
-//#define HTONS(he)
-
 
 /*
  * Processor simulator
@@ -203,7 +196,6 @@ private:
     bool ir;
 
 	CBus* mBus;
-//	CMemory *mMemory;
 	CBus *mMemory;
 	MOS6502OpcodesLinear mOpcodes[OPCODESMAX];
 
@@ -212,7 +204,6 @@ private:
 	void PrintOperands(u8 addressMode, u16 pc);
 	void PrintStatusBits();
 
-	//BKE_MUTEX mMutex;
 	CHiresTime* mHiresTime;
 
 //#ifdef DEBUG_CONSISTENCY_CHECK	

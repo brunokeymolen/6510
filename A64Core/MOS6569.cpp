@@ -42,7 +42,6 @@ void CMOS6569::Cycle(){
 }
 
 u8 CMOS6569::Peek(u16 address){
-//cout << "6569 Peek:" << (int)address << endl;
 	if(address >= 0x0400 && address <= 0x07FF){
 		return mVideoMem[address-0x0400];
 	}
@@ -59,8 +58,6 @@ int CMOS6569::Poke(u16 address, u8 val){
 	u8 v; //Vertical (Y) position of char
 	u8 cl; //character line
 	int p;
-//	u8 clr;
-//cout << "6569 Poke:" << (int)address << ", m=" << (int)val << endl;
 	
 	
 	//In character buffer 40x25?
@@ -70,24 +67,17 @@ int CMOS6569::Poke(u16 address, u8 val){
 		
 		//Write it to our screen buffer (320 * 200)
 		
-		//p = ((address-0x0400)%40) + (((address-0x0400)/40)*8);
 		rect.x = (address-0x0400)%40;//= p*8
 		rect.y = (u16) ((address-0x0400)/40)*8;
-//		rect.y = ((u16)(address-0x0400)/40.0)*8;
 		p = rect.x + (rect.y * 40);
 		
-	//cout << "address=" << (address-0x0400) << ", p=" << p <<", rect.x="<< rect.x << ", rect.y="<< rect.y << endl;
 		
 		for(v=0;v<8;v++){
 			mBus->SetMode(eBusModeVic);
 			//Read char from charRom (from VIC address mode charrom = 0x1000 or 0x9000)
 			cl = mBus->Peek(0x1000 + (val * 8) + v);
-			//if((val & 0x80) > 0){
-			//	cl = ~cl;
-			//}
 			
 			mScreenBufPixel[ /*Y=*/   /*X=*/  p + (v * 40 /*(320/8)*/)] = CUtil::Reverse(cl);
-//			mScreenBufPixel[ /*Y=*/   /*X=*/  p + (v * 40 /*(320/8)*/)] = cl;
 		}
 		
 		rect.width = 8;
