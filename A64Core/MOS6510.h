@@ -227,7 +227,7 @@ public:
 //	CMOS6510(CMemory* mem);
 	CMOS6510(BKE_MUTEX mutex);
 	~CMOS6510();
-	void Run();
+//	void Run();
     int Tick();
 	//Stack
 	void Push(u8);

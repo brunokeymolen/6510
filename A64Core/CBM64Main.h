@@ -40,11 +40,11 @@ class CBM64Main{
 	protected:
 	public:
 		int Init();
-		int Run();
+//		int Run();
         int Tick();
 		int Stop();
 
-		int RunPriv();
+		//int RunPriv();
 		int SetDisassemble(int d);
 		int GetDisassemble();
 		

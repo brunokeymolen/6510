@@ -21,8 +21,7 @@ bool _run = true;
 HiresTimeImpl* hiresTime_ = NULL;
 uint64_t total_cycles = 0;
 uint64_t start = 0;
-char charbuffer[2][320*200];
-std::atomic<int> activebuffer = 0;
+char charbuffer[320*200];
 
 static char CMOS6569TextMap[128] = 
 				 {    '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
@@ -89,16 +88,14 @@ public:
     }
     int cnt_ = 0;
     void DrawChars(u8* memory) {
-        int a = (activebuffer + 1) % 2;
-        memcpy(charbuffer[a], memory, 320*200);
-        activebuffer = a;
+        memcpy(charbuffer, memory, 320*200);
     }
 public:
 };
 
 void runloop() {
     bool run = true;
-    int target_cycles = 1023000; //PAL
+    int target_cycles = 1023000; //NTSC
     int cycles_100_ms = target_cycles / 10;
     int cycles = 0;
     start = now();
@@ -127,7 +124,7 @@ void uiloop() {
       std::cout << "\u001b[44m" << std::endl; 
       for (int y=0;y<25;y++) {
           for (int x=0;x<40;x++) {
-            uint8_t m = charbuffer[activebuffer][y*40+x];
+            uint8_t m = charbuffer[y*40+x];
             char c = '_';
             if (m < 128) {
                 c = CMOS6569TextMap[m]; 
@@ -136,8 +133,12 @@ void uiloop() {
           }
           std::cout << std::endl;
       }
-      std::cout << "\u001b[0m" << std::endl; 
-//        std::cout << "cycles " << total_cycles << "  " << 1000*(total_cycles/(now()-start)) << std::endl;
+      std::cout << "\u001b[0m" << std::endl;
+      
+      int64_t elapsed = now()-start;
+      if (elapsed > 0) {
+          std::cout << "cycles " << 1000*(total_cycles/(now()-start)) << "/sec" << std::endl;
+      }
 }
 
 //https://stackoverflow.com/questions/36428098/c-how-to-check-if-my-input-bufferstdin-is-empty
@@ -244,10 +245,12 @@ int main(int argc, char* argv[]) {
     });
 
     std::thread t2([=]{
+        printf("\e[?25l"); //cursor off
         while(_run) {
             uiloop();
             usleep(100000);
         }
+        printf("\e[?25h"); //cursor on
     });
 
 

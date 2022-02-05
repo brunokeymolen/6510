@@ -184,7 +184,7 @@ CMOS6510::CMOS6510(BKE_MUTEX mutex){
 	//Create linear list of opcodes and functions
 	for(listRow=0;listRow<OPCODESMAX;listRow++){
 		mOpcodes[listRow].matrixID = ILLEGAL_OPC;
-		mOpcodes[listRow].assembly = opnull;//"___";
+		mOpcodes[listRow].assembly = opnull;
 		matrixRow=0;
 		while(true){
 			if(opcodeMatrix[matrixRow].ID == END_OPC){
@@ -378,10 +378,6 @@ CMOS6510::CMOS6510(BKE_MUTEX mutex){
 		}
 	}
 	
-	//Dump list
-//	for(int m=0;m<256;m++){
-//		printf("0x%.2x - %.3s ; %.2d\n", m, mOpcodes[m].assembly, mOpcodes[m].addressMode);
-//	}	
 	
 	mDisassemble = 0;
 	
@@ -501,6 +497,7 @@ int CMOS6510::Tick() {
         return _cycles;
 	}
 
+#if 0
 /*
  * Run Loop
  */
@@ -671,7 +668,7 @@ void CMOS6510::Run(){
         
 	}
 }
-
+#endif
 
 void CMOS6510::DBGTraceLine(u8 cmd, u16 prevPC){
 		
@@ -1991,6 +1988,7 @@ void CMOS6510::IRQ(){
 	Push(r_p);
 	SETFLAG(FLAG_I);
 	r_pc=mBus->Peek16(0xFFFE);
+    _cycles += 7;
 //timer50Hz := timer50Hz+20
      
 }
@@ -2001,4 +1999,5 @@ void CMOS6510::NMI(){
 	Push(r_p);
 	SETFLAG(FLAG_I);
 	r_pc=mBus->Peek16(0xFFFA);
+    _cycles += 7;
 }

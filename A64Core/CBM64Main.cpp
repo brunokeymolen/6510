@@ -10,7 +10,7 @@
 #include "CBM64Main.h"
 //#include "UTestOpcode.h"
 
-void* CBM64ThreadProc(void* lpParameter);
+//void* CBM64ThreadProc(void* lpParameter);
 
 
 int CBM64Main::Init(){
@@ -42,6 +42,7 @@ int CBM64Main::Tick(){
     return cycles;
 }
 
+#if 0
 int CBM64Main::Run(){
     std::cout << "create thread" << std::endl;
 	BKE_THREAD_CREATE(mCBM64Thread, &CBM64ThreadProc, this);
@@ -60,7 +61,7 @@ int CBM64Main::RunPriv(){
 
 	return 0;
 }
-	
+#endif	
 	
 int CBM64Main::Stop(){	
 	delete mProcessor;
@@ -110,13 +111,13 @@ uint64_t CBM64Main::GetCycles(){
     return mProcessor->GetCycles();
 }
 
-
+#if 0
 void* CBM64ThreadProc(void* lpParameter){
 std::cout << "CBM64ThreadProc " << std::endl;	
 	CBM64Main* pThis = (CBM64Main*)lpParameter;
 	pThis->RunPriv();
 	return NULL;
 }
-
+#endif
 
 
