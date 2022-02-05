@@ -21,7 +21,6 @@ class CBasicRom : public CDevice{
 	private:
 		u8 mRom[BASICROMSIZE];
 		CBasicRom& operator+=(CBasicRom&);
-	//	CBasicRom(CBasicRom&);
 	
 	protected:
 		void GetDefaultAddressRange(u16 *from, u16 *to);

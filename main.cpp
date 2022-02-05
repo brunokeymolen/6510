@@ -9,6 +9,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <termios.h>
+#include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
 
 #include "A64Core/CBM64Main.h"
 #include "A64Core/General.h"
@@ -22,6 +25,7 @@ HiresTimeImpl* hiresTime_ = NULL;
 uint64_t total_cycles = 0;
 uint64_t start = 0;
 char charbuffer[320*200];
+
 
 static char CMOS6569TextMap[128] = 
 				 {    '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
@@ -63,6 +67,11 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start_;
 };
 
+void Inthandler(int sig)
+{
+    signal(sig, SIG_IGN);
+    _run = false;
+}
 
 uint8_t *screenbuffer_[2];
 std::atomic<int> *activescreen_;
@@ -93,14 +102,14 @@ public:
 public:
 };
 
+
 void runloop() {
-    bool run = true;
     int target_cycles = 1023000; //NTSC
     int cycles_100_ms = target_cycles / 10;
     int cycles = 0;
     start = now();
 
-    while (run) {
+    while (_run) {
         cycles = 0;
         uint64_t ts = now();
         while(true) {
@@ -217,8 +226,9 @@ int main(int argc, char* argv[]) {
     CMOS6569* vic = cbm64->GetVic();
 	unsigned char* screenBuffer = vic->RegisterHWScreen(emcScreen_);
 
+    signal(SIGINT, Inthandler);
 
-    std::thread t([=]{
+    std::thread t1([=]{
         while(_run) {
             std::vector<char> keystroke = getKeystroke();
             //https://sta.c64.org/cbm64pet.html
@@ -255,7 +265,13 @@ int main(int argc, char* argv[]) {
 
 
     std::cout << "\033c" << std::endl;
+    
     runloop();
+
+    t1.join();
+    t2.join();
+
+    std::cout << "ended..." << std::endl;
 }
 
 
