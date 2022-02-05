@@ -13,7 +13,7 @@ to get the necessary ROMS, run:
 
 ###Build
 
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release 
 cd build
 make
 

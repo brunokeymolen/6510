@@ -15,7 +15,7 @@
 
 #define BASICROMSTART  0xA000
 #define BASICROMEND    0xBFFF
-#define BASICROMSIZE   (BASICROMEND - BASICROMSTART) 
+#define BASICROMSIZE   (BASICROMEND - BASICROMSTART + 1) 
 
 class CBasicRom : public CDevice{
 	private:

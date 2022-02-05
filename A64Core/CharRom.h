@@ -15,7 +15,7 @@
 
 #define CHARROMSTART  0xD000
 #define CHARROMEND    0xDFFF
-#define CHARROMSIZE   (CHARROMEND - CHARROMSTART) 
+#define CHARROMSIZE   (CHARROMEND - CHARROMSTART + 1) 
 
 class CCharRom : public CDevice{
 	private:

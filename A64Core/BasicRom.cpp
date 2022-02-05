@@ -13,7 +13,22 @@
 #include "Bus.h"
 #include "General.h"
 
+
+#ifdef EMBEDDED_ROMS
+extern char _binary_BASIC_ROM_start[];
+extern char _binary_BASIC_ROM_end[];
+#endif
+
 CBasicRom::CBasicRom():CDevice(){
+#ifdef EMBEDDED_ROMS
+    std::cout << "adding embedded rom" << std::endl;
+    int len = (uint64_t)(&_binary_BASIC_ROM_end) - (uint64_t)(&_binary_BASIC_ROM_start);
+    if (BASICROMSIZE != len) {
+        std::cout << "basic rom error... embedded len: " << len << " expect: " << BASICROMSIZE << std::endl;
+        exit(-1);
+    }
+    memcpy(mRom, _binary_BASIC_ROM_start, BASICROMSIZE);
+#else
 	//Load ROM's
 	ifstream file (LOCATION_ROMS "BASIC.ROM", ios::in|ios::binary|ios::ate);
 	if (file.is_open()){
@@ -24,7 +39,7 @@ CBasicRom::CBasicRom():CDevice(){
 		cout << "Could not load BASIC.ROM error" << endl;
 		exit(-1);
 	}
-	
+#endif	
 	CBus::GetInstance()->Register(eBusBasicRom, this, BASICROMSTART, BASICROMEND);
 	
 }

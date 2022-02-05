@@ -14,7 +14,22 @@
 #include <fstream>
 #include "General.h"
 
+#ifdef EMBEDDED_ROMS
+extern char _binary_KERNAL_ROM_start[];
+extern char _binary_KERNAL_ROM_end[];
+#endif
+
+
 CKernalRom::CKernalRom():CDevice(){
+#ifdef EMBEDDED_ROMS
+    std::cout << "adding embedded rom" << std::endl;
+    int len = (uint64_t)(&_binary_KERNAL_ROM_end) - (uint64_t)(&_binary_KERNAL_ROM_start);
+    if (KERNALROMSIZE != len) {
+        std::cout << "kernal rom error... embedded len: " << len << " expect: " << KERNALROMSIZE << std::endl;
+        exit(-1);
+    }
+    memcpy(mRom, _binary_KERNAL_ROM_start, KERNALROMSIZE);
+#else
 	//Load ROM's
 	ifstream file(LOCATION_ROMS "KERNAL.ROM", ios::in|ios::binary|ios::ate);
 	if (file.is_open()){
@@ -25,7 +40,8 @@ CKernalRom::CKernalRom():CDevice(){
 		cout << "Could not load KERNAL.ROM error" << endl;
 		exit(-1);
 	}
-	
+#endif
+
 	CBus::GetInstance()->Register(eBusKernalRom, this, KERNALROMSTART, KERNALROMEND);
 
 }
