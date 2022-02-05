@@ -133,9 +133,9 @@ void drawScreen() {
 
     SDL_Flip(screen);
 
-    std::cout << "Tick from UI loop" << std::endl;
+    std::cout << "Cycle from UI loop" << std::endl;
     while(true) {
-        cycles += cbm64->Tick();
+        cycles += cbm64->Cycle();
         if (cycles >= 32000) { //cycles_10_ms) {
             cycles = cycles - cycles_10_ms; 
             break;
@@ -166,9 +166,9 @@ void drawScreen1() {
 
     SDL_Flip(screen);
 
-    std::cout << "Tick from UI loop" << std::endl;
+    std::cout << "Cycle from UI loop" << std::endl;
     for (int i=0;i<500;i++) {
-        cbm64->Tick();
+        cbm64->Cycle();
     }
 }
 

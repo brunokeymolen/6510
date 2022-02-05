@@ -41,7 +41,7 @@ class CBM64Main{
 	public:
 		int Init();
 //		int Run();
-        int Tick();
+        int Cycle();
 		int Stop();
 
 		//int RunPriv();

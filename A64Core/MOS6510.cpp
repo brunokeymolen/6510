@@ -440,9 +440,9 @@ u16 CMOS6510::Pop16(){
 
 
 /*
- * Tick, when the runloop is external
+ * Cycle
  */
-int CMOS6510::Tick() {
+int CMOS6510::Cycle() {
 		u8 cmd = mMemory->Peek(r_pc);
 		u16 prevPC = r_pc;
         _cycles = 0;

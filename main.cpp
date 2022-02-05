@@ -104,7 +104,7 @@ void runloop() {
         cycles = 0;
         uint64_t ts = now();
         while(true) {
-            cycles += cbm64->Tick();
+            cycles += cbm64->Cycle();
             if (cycles >= cycles_100_ms) {
                 total_cycles += cycles;
                 uint64_t elapsed = now() - ts;

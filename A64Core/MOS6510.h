@@ -224,11 +224,9 @@ protected:
 public:
 	int mDisassemble;
 
-//	CMOS6510(CMemory* mem);
 	CMOS6510(BKE_MUTEX mutex);
 	~CMOS6510();
-//	void Run();
-    int Tick();
+    int Cycle();
 	//Stack
 	void Push(u8);
 	void Push16(u16);

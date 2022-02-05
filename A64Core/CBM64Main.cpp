@@ -35,10 +35,10 @@ int CBM64Main::Init(){
 }
 
 
-int CBM64Main::Tick(){
-    mVic->Tick();
-	int cycles = mProcessor->Tick();
-    mCia1->Tick();
+int CBM64Main::Cycle(){
+    mVic->Cycle();
+	int cycles = mProcessor->Cycle();
+    mCia1->Cycle();
     return cycles;
 }
 

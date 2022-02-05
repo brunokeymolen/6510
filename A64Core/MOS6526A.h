@@ -27,7 +27,7 @@ public:
 	CMOS6526A(BKE_MUTEX mutex);
 	~CMOS6526A();
 
-    void Tick();
+    void Cycle();
 
 	u8 GetDeviceID();
 	u8 Peek(u16 address);
