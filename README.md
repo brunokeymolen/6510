@@ -6,22 +6,24 @@ MOS6510 Emulator
 
 # ROMS
 to get the necessary ROMS, run:
+```
 ./get_roms.sh
+```
 
+## Bash
 
-##Bash
-
-###Build
-
+### Build
+```
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release 
 cd build
 make
+```
 
-###RUN
-
+### RUN
+```
 cd build
 ./mos6510
-
+```
 
 ## Sources
 http://users.telenet.be/kim1-6502/6502/proman.html
@@ -32,27 +34,28 @@ http://6502.org/tutorials/interrupts.html
 
 
 
-##Emscripten (WebAssembly)
+## Emscripten (WebAssembly)
 THIS BUILD IS IN THE MAKING - DON'T USE IT YET`:w
 
-##DEPENDENCIES
+## DEPENDENCIES
 
 Emscripten:  
 https://emscripten.org/
 
 
-###Build
-
+### Build
+```
 cd emcc-build
 make
+```
 
-###RUN
-
+### RUN
+```
 emcc-build
 python3 -m http.server
-
-###BROWSER
-
+```
+### BROWSER
+```
 http://127.0.0.1:8000/MOS6510.html
-
+```
 
