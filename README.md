@@ -35,7 +35,7 @@ http://6502.org/tutorials/interrupts.html
 
 
 ## Emscripten (WebAssembly)
-THIS BUILD IS IN THE MAKING - DON'T USE IT YET`:w
+THIS BUILD IS IN THE MAKING - DON'T USE IT YET
 
 ## DEPENDENCIES
 
