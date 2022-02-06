@@ -226,29 +226,29 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, Inthandler);
 
     std::thread t1([=]{
-            while(_run) {
+        while(_run) {
             std::vector<char> keystroke = getKeystroke();
             //https://sta.c64.org/cbm64pet.html
             char c = keystroke[0];
             if (c >= 'a' && c <= 'z') {
-            c += 'A' - 'a';
+                c += 'A' - 'a';
             } else if (c == 10) {
-            c = 13;
+                c = 13;
             } else if (isKeystroke(keystroke, ESC)) {
-            c = 3;
+                c = 3;
             } else if (isKeystroke(keystroke, KEYUP)) {
-            c = 145;
+                c = 145;
             } else if (isKeystroke(keystroke, KEYDOWN)) {
-            c = 17;
+                c = 17;
             } else if (isKeystroke(keystroke, KEYLEFT)) {
-            c = 157;
+                c = 157;
             } else if (isKeystroke(keystroke, KEYRIGHT)) {
-            c = 29;
+                c = 29;
             } else if (c == 127) {
-            c = 20;
+                c = 20;
             }
             cbm64->GetCia1()->AddKeyStroke(c);
-            }
+        }
     });
 
     std::thread t2([=]{
