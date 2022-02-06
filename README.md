@@ -4,6 +4,12 @@ MOS6510 Emulator
 ![6510 - Commodore 64 Internals, 6510 CPU and 6581 SID. source: https://en.wikipedia.org/wiki/MOS_Technology_6510 ](https://upload.wikimedia.org/wikipedia/commons/2/22/MOS_Technologies_large.jpg)
 
 
+
+INFO
+----
+https://www.keymolen.com/2013/06/write-your-own-mos-6510-commodore-64.html
+
+
 # ROMS
 to get the necessary ROMS, run:
 ```
@@ -25,7 +31,7 @@ cd build
 ./mos6510
 ```
 
-## Sources
+## Info
 http://users.telenet.be/kim1-6502/6502/proman.html
 http://archive.6502.org/datasheets/synertek_programming_manual.pdf
 http://6502.org/tutorials/interrupts.html
