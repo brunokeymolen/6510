@@ -1,6 +1,3 @@
-// https://www.jamesfmackenzie.com/2019/12/01/webassembly-graphics-with-sdl/
-// https://emscripten.org/docs/getting_started/downloads.html
-
 #include <chrono>
 #include <ctime>
 #include <atomic>
@@ -28,14 +25,14 @@ char charbuffer[320*200];
 
 
 static char CMOS6569TextMap[128] = 
-				 {    '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
-					  'P','Q','R','S','T','U','V','W','X','Y','Z','[','x',']','^','x',
-                      ' ','!','"','#','$','%','&','\'','(',')','*','+',',','-','.','/',
-                      '0','1','2','3','4','5','6','7','8','9',':',';','<','=','>','?',
-                      'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
-                      'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
-                      ' ','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
-                      'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x' };
+{    '@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
+    'P','Q','R','S','T','U','V','W','X','Y','Z','[','x',']','^','x',
+    ' ','!','"','#','$','%','&','\'','(',')','*','+',',','-','.','/',
+    '0','1','2','3','4','5','6','7','8','9',':',';','<','=','>','?',
+    'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
+    'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
+    ' ','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x',
+    'x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x' };
 
 uint64_t now() {
     uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -44,27 +41,27 @@ uint64_t now() {
 
 
 class HiresTimeImpl : public CHiresTime {
-public:
-    HiresTimeImpl(){
-        start_ = std::chrono::high_resolution_clock::now();
-    }
-public:
-    double GetMicroseconds() {
-        auto t2 = std::chrono::high_resolution_clock::now();
-        
-        auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - start_);
-        std::chrono::duration<long, std::micro> int_usec = int_ms;
+    public:
+        HiresTimeImpl(){
+            start_ = std::chrono::high_resolution_clock::now();
+        }
+    public:
+        double GetMicroseconds() {
+            auto t2 = std::chrono::high_resolution_clock::now();
 
-        return int_usec.count();
-    }
+            auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - start_);
+            std::chrono::duration<long, std::micro> int_usec = int_ms;
 
-	int GetMicrosecondsLo() {
-		static timeval t;
-		gettimeofday(&t, NULL);	
-		return ((t.tv_sec * 1000000) + t.tv_usec);
-    }
-private:
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+            return int_usec.count();
+        }
+
+        int GetMicrosecondsLo() {
+            static timeval t;
+            gettimeofday(&t, NULL);	
+            return ((t.tv_sec * 1000000) + t.tv_usec);
+        }
+    private:
+        std::chrono::time_point<std::chrono::high_resolution_clock> start_;
 };
 
 void Inthandler(int sig)
@@ -76,30 +73,30 @@ void Inthandler(int sig)
 uint8_t *screenbuffer_[2];
 std::atomic<int> *activescreen_;
 class EMCScreen : public CVICHWScreen {
-public:
-    EMCScreen() {
-        activescreen_ = new std::atomic<int>();
-        *activescreen_ = 0;
-        for (int i=0; i<2; i++) {
-            screenbuffer_[i] = (uint8_t*)calloc(320*200, sizeof(uint8_t));
+    public:
+        EMCScreen() {
+            activescreen_ = new std::atomic<int>();
+            *activescreen_ = 0;
+            for (int i=0; i<2; i++) {
+                screenbuffer_[i] = (uint8_t*)calloc(320*200, sizeof(uint8_t));
+            }
         }
-    }
-    ~EMCScreen() {
-        for (int i=0; i<2; i++) {
-            free(screenbuffer_[i]);
-        }        
-        delete(activescreen_);
-    }
-public:
-    void DrawPixels(u8* screenBuffer, VICRect* area) {
-    }
-    void DrawChar(u16 address, u8 c) {
-    }
-    int cnt_ = 0;
-    void DrawChars(u8* memory) {
-        memcpy(charbuffer, memory, 320*200);
-    }
-public:
+        ~EMCScreen() {
+            for (int i=0; i<2; i++) {
+                free(screenbuffer_[i]);
+            }        
+            delete(activescreen_);
+        }
+    public:
+        void DrawPixels(u8* screenBuffer, VICRect* area) {
+        }
+        void DrawChar(u16 address, u8 c) {
+        }
+        int cnt_ = 0;
+        void DrawChars(u8* memory) {
+            memcpy(charbuffer, memory, 320*200);
+        }
+    public:
 };
 
 
@@ -129,25 +126,25 @@ void runloop() {
 }
 
 void uiloop() {
-      std::cout << "\033[0;0H" << std::endl; 
-      std::cout << "\u001b[44m" << std::endl; 
-      for (int y=0;y<25;y++) {
-          for (int x=0;x<40;x++) {
+    std::cout << "\033[0;0H" << std::endl; 
+    std::cout << "\u001b[44m" << std::endl; 
+    for (int y=0;y<25;y++) {
+        for (int x=0;x<40;x++) {
             uint8_t m = charbuffer[y*40+x];
             char c = '_';
             if (m < 128) {
                 c = CMOS6569TextMap[m]; 
             }
             std::cout << c;
-          }
-          std::cout << std::endl;
-      }
-      std::cout << "\u001b[0m" << std::endl;
-      
-      int64_t elapsed = now()-start;
-      if (elapsed > 0) {
-          std::cout << "cycles " << 1000*(total_cycles/(now()-start)) << "/sec" << std::endl;
-      }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "\u001b[0m" << std::endl;
+
+    int64_t elapsed = now()-start;
+    if (elapsed > 0) {
+        std::cout << "cycles " << 1000*(total_cycles/(now()-start)) << "/sec" << std::endl;
+    }
 }
 
 //https://stackoverflow.com/questions/36428098/c-how-to-check-if-my-input-bufferstdin-is-empty
@@ -215,43 +212,43 @@ bool isKeystroke(std::vector<char>& keystroke, const char* k) {
 int main(int argc, char* argv[]) {
     start = now();
     cbm64 = new CBM64Main();
-	cbm64->Init();
-	
+    cbm64->Init();
+
     //Set the hires time callbacks
     hiresTime_ = new HiresTimeImpl();
-	cbm64->SetHiresTimeProvider(hiresTime_);
+    cbm64->SetHiresTimeProvider(hiresTime_);
 
-	//Subscribe Host hardware related VIC Code
+    //Subscribe Host hardware related VIC Code
     emcScreen_ = new EMCScreen();
     CMOS6569* vic = cbm64->GetVic();
-	unsigned char* screenBuffer = vic->RegisterHWScreen(emcScreen_);
+    unsigned char* screenBuffer = vic->RegisterHWScreen(emcScreen_);
 
     signal(SIGINT, Inthandler);
 
     std::thread t1([=]{
-        while(_run) {
+            while(_run) {
             std::vector<char> keystroke = getKeystroke();
             //https://sta.c64.org/cbm64pet.html
             char c = keystroke[0];
             if (c >= 'a' && c <= 'z') {
-                c += 'A' - 'a';
+            c += 'A' - 'a';
             } else if (c == 10) {
-                c = 13;
+            c = 13;
             } else if (isKeystroke(keystroke, ESC)) {
-                c = 3;
+            c = 3;
             } else if (isKeystroke(keystroke, KEYUP)) {
-                c = 145;
+            c = 145;
             } else if (isKeystroke(keystroke, KEYDOWN)) {
-                c = 17;
+            c = 17;
             } else if (isKeystroke(keystroke, KEYLEFT)) {
-                c = 157;
+            c = 157;
             } else if (isKeystroke(keystroke, KEYRIGHT)) {
-                c = 29;
+            c = 29;
             } else if (c == 127) {
-                c = 20;
+            c = 20;
             }
-		    cbm64->GetCia1()->AddKeyStroke(c);
-        }
+            cbm64->GetCia1()->AddKeyStroke(c);
+            }
     });
 
     std::thread t2([=]{
@@ -265,7 +262,7 @@ int main(int argc, char* argv[]) {
 
 
     std::cout << "\033c" << std::endl;
-    
+
     runloop();
 
     std::cout << "press a key to end..." << std::endl;
@@ -276,7 +273,7 @@ int main(int argc, char* argv[]) {
     std::cout << "ended..." << std::endl;
 
 
- 
+
 }
 
 
