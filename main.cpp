@@ -268,10 +268,15 @@ int main(int argc, char* argv[]) {
     
     runloop();
 
+    std::cout << "press a key to end..." << std::endl;
+
     t1.join();
     t2.join();
 
     std::cout << "ended..." << std::endl;
+
+
+ 
 }
 
 
