@@ -187,17 +187,16 @@ std::vector<char> getKeystroke() {
 
 
 
-const char ESC[2] = { 27, -1 };
-const char KEYUP[4] = { 27, 91, 65, -1 }; 
-const char KEYDOWN[4] = { 27, 91, 66, -1 }; 
-const char KEYLEFT[4] = { 27, 91, 68, -1 }; 
-const char KEYRIGHT[4] = { 27, 91, 67, -1 }; 
+const char ESC[2] = { 27 };
+const char KEYUP[4] = { 27, 91, 65 }; 
+const char KEYDOWN[4] = { 27, 91, 66 }; 
+const char KEYLEFT[4] = { 27, 91, 68 }; 
+const char KEYRIGHT[4] = { 27, 91, 67 }; 
 
 EMCScreen* emcScreen_ = NULL;
 
 bool isKeystroke(std::vector<char>& keystroke, const char* k) {
-    int len = 0;
-    while (k[len] != -1) {len++;}
+    int len = sizeof(k) / sizeof(k[0]);
     if (len != keystroke.size()) {
         return false;
     }
