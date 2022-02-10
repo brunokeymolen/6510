@@ -48,6 +48,7 @@ private:
 	sBusDevice mKernalRom;
 	sBusDevice mProcessor;
 	sBusDevice mCia1;
+	sBusDevice mCia2;
 	sBusDevice mCharRom;
 	sBusDevice mIO;
 

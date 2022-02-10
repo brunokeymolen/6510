@@ -217,7 +217,7 @@ public:
 
 	CMOS6510(BKE_MUTEX mutex);
 	~CMOS6510();
-    int Cycle();
+    int Cycle(uint64_t totalCycles);
 	//Stack
 	void Push(u8);
 	void Push16(u16);

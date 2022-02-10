@@ -11,23 +11,23 @@
 
 // https://www.c64-wiki.com/wiki/CIA
 
-#ifndef MOS6569A_H
-#define MOS6569A_H
+#ifndef MOS6569CIA1_H
+#define MOS6569CIA1_H
 
 #include "Common.h"
 #include "Device.h"
 #include "Bus.h"
 
-class CMOS6526A : public CDevice{
+class CMOS6526CIA1 : public CDevice{
 private:
 	CBus* mBus;
 	BKE_MUTEX mMutex;
 protected:
 public:
-	CMOS6526A(BKE_MUTEX mutex);
-	~CMOS6526A();
+	CMOS6526CIA1(BKE_MUTEX mutex);
+	~CMOS6526CIA1();
 
-    void Cycle();
+    void Cycle(uint64_t totalCycles);
 
 	u8 GetDeviceID();
 	u8 Peek(u16 address);

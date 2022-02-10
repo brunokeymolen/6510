@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <iomanip>
 
 #include "A64Core/CBM64Main.h"
 #include "A64Core/General.h"
@@ -145,6 +146,20 @@ void uiloop() {
     if (elapsed > 0) {
         std::cout << "cycles " << 1000*(total_cycles/(now()-start)) << "/sec" << std::endl;
     }
+    
+    std::vector<uint16_t> addr;
+    for (uint16_t a = 0xdd00; a<= 0xddff; a++) {
+        addr.push_back(a);
+    }
+
+    for (int i=0;i<addr.size();i++) {
+        auto a = addr[i]; 
+        std::cout << std::hex << std::setfill('0') << std::setw(4) << a << ": " << std::setw(2) <<  (int)cbm64->Peek(a) << std::dec << "   ";
+        if (i % 16 == 0) {
+            std::cout <<  std::endl;
+        }
+    }
+    std::cout << std::endl;
 }
 
 //https://stackoverflow.com/questions/36428098/c-how-to-check-if-my-input-bufferstdin-is-empty

@@ -431,7 +431,7 @@ u16 CMOS6510::Pop16(){
 /*
  * Cycle
  */
-int CMOS6510::Cycle() {
+int CMOS6510::Cycle(uint64_t totalCycles) {
 		u8 cmd = mMemory->Peek(r_pc);
 		u16 prevPC = r_pc;
         _cycles = 0;

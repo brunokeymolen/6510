@@ -47,7 +47,7 @@ class CMOS6569 : public CDevice{
 		CMOS6569();
 		u8 GetDeviceID();
 
-        void Cycle();
+        void Cycle(uint64_t totalCycles);
 
 		u8 Peek(u16 address);
 		int Poke(u16 address, u8 val); 

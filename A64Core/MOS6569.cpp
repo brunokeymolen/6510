@@ -38,7 +38,7 @@ u8 CMOS6569::GetDeviceID(){
 	return eBusVic;
 }
 
-void CMOS6569::Cycle(){
+void CMOS6569::Cycle(uint64_t totalCycles){
 }
 
 u8 CMOS6569::Peek(u16 address){
