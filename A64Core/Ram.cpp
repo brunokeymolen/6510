@@ -17,7 +17,6 @@ CRam::CRam():CDevice(){
 	CBus::GetInstance()->Register(eBusRam, this, 0x0000, 0xFFFF);
 
 	memset(mRam, 0, MAXRAM);
-	memset(mRam + 0xD000, 0, 0xDFFF-0xD000);
 }
 
 
@@ -38,9 +37,9 @@ int CRam::LoadBasic(char* fname){
 	u8* m;
 	u16 a;
 	m = mRam+0x0800;
-	ifstream file(fname, ios::in|ios::binary|ios::ate);
+    std::ifstream file(fname, std::ios::in|std::ios::binary|std::ios::ate);
 	if (file.is_open()){
-		file.seekg (0, ios::beg);
+		file.seekg (0, std::ios::beg);
 		file.read((char*)&a,2); //ignore when basic
 		file.read ((char*)m, (0x9FFF - 0x0800)); //Basic area : 0x0800 - 0x9FFF
 		a = 0x0800 + file.gcount(); //basic
@@ -48,7 +47,7 @@ int CRam::LoadBasic(char* fname){
 		file.close();
 		CBus::GetInstance()->Poke16(0x002D, a);
 	}else{
-		cout << "Could not load file : " << fname << endl;
+        std::cout << "Could not load file : " << fname << std::endl;
 		return -1;
 	}
 
@@ -58,9 +57,9 @@ int CRam::LoadBasic(char* fname){
 int CRam::LoadApp(char* fname){
 	u8* m;
 	u16 a;
-	ifstream file(fname, ios::in|ios::binary|ios::ate);
+    std::ifstream file(fname, std::ios::in|std::ios::binary|std::ios::ate);
 	if (file.is_open()){
-		file.seekg (0, ios::beg);
+		file.seekg (0, std::ios::beg);
 		file.read((char*)&a,2); 
 		m = mRam+a; 	
 		file.read ((char*)m, (0x9FFF - a)); //Basic area : 0x0800 - 0x9FFF
@@ -68,7 +67,7 @@ int CRam::LoadApp(char* fname){
 		file.close();
 		CBus::GetInstance()->Poke16(0x002D, a);
 	}else{
-		cout << "Could not load file : " << fname << endl;
+        std::cout << "Could not load file : " << fname << std::endl;
 		return -1;
 	}
 

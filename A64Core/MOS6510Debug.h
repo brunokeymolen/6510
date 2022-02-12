@@ -19,7 +19,7 @@
 
 class CMOS6510Debug{
 private:
-	fstream* mStream;
+    std::fstream* mStream;
 	char* mBuf;
 	int mBufLen;
 protected:

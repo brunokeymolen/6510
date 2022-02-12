@@ -25,6 +25,7 @@ set(SRC
     A64Core/MOS6569.cpp
     A64Core/Ram.cpp
     A64Core/Util.cpp 
+    A64Core/Common.cpp 
     main.cpp)
 
 add_custom_command(OUTPUT roms.o

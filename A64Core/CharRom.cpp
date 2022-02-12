@@ -57,7 +57,7 @@ u8 CCharRom::Peek(u16 address){
 
 int CCharRom::Poke(u16 address, u8 val){
 	//Can not poke into ROM
-	cout << "CCharRom Poke:" << (int)address << ", m=" << (int)val << endl;
+    std::cout << "CCharRom Poke:" << (int)address << ", m=" << (int)val << std::endl;
 	CBus::GetInstance()->PokeDevice(eBusRam,address,val);
 
 	return -1;

@@ -13,6 +13,7 @@
 
 #include "A64Core/CBM64Main.h"
 #include "A64Core/General.h"
+#include "A64Core/Common.h"
 
 
 class HiresTimeImpl;
@@ -149,7 +150,7 @@ void uiloop() {
     
     std::vector<uint16_t> addr;
     for (uint16_t a = 0xdd00; a<= 0xddff; a++) {
-        addr.push_back(a);
+//        addr.push_back(a);
     }
 
     for (int i=0;i<addr.size();i++) {
@@ -223,9 +224,11 @@ bool isKeystroke(std::vector<char>& keystroke, const std::vector<char>& k) {
 }
 
 int main(int argc, char* argv[]) {
+    
     start = now();
     cbm64 = new CBM64Main();
     cbm64->Init();
+
 
     //Set the hires time callbacks
     hiresTime_ = new HiresTimeImpl();

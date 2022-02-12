@@ -16,8 +16,10 @@
 #include <iostream>
 #include <iomanip>
 #include "bkegen.h"
-
-using namespace std;
-
+#include <pthread.h>
+#include <iomanip>
+#include <sys/time.h>
+#include <stdio.h>
+#include <iomanip>
 	
 #endif

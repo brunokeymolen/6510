@@ -80,8 +80,8 @@ CMOS6510Debug::CMOS6510Debug(){
 	mBufLen = 512;
 	mBuf = new char[mBufLen];
 
-	mStream = new fstream();
-	mStream->open("/Users/bruno/Projects/A64/Data/ED64doc Build an Emulator/ed64Chap3/sin63.log",ios::in);	
+	mStream = new std::fstream();
+	mStream->open("/Users/bruno/Projects/A64/Data/ED64doc Build an Emulator/ed64Chap3/sin63.log",std::ios::in);	
 	mStream->getline(mBuf, mBufLen);
 	mStream->getline(mBuf, mBufLen);
 	mStream->getline(mBuf, mBufLen);
@@ -109,7 +109,7 @@ int CMOS6510Debug::GetTraceLine(u16* pc, u8* opcode, u8* a, u8* x, u8* y, u8* sp
 	mBuf[44] = 0;
 	
 //	#ifdef DEBUG_TRACE_OPCODE
-		cout <<  mBuf << " :: " ;
+    std::cout <<  mBuf << " :: " ;
 //	#endif
 
 	// 0         1         2         3         4

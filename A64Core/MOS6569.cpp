@@ -7,6 +7,8 @@
  *
  */
 
+//https://www.cebix.net/VIC-Article.txt
+
 #include "MOS6569.h"
 #include "Util.h"
 
@@ -24,14 +26,13 @@ static char CMOS6569TextMap[128] =
 
 
 CMOS6569::CMOS6569(){
-	memset(mVideoMem, 0, (0x0800-0x0400));
+	memset(mVideoMem, 44, (0x0800-0x0400));
 	mBus = CBus::GetInstance(); 
 	mBus->Register(eBusVic, this, 0x0400, 0x07FF);
 	mBus->Register(eBusIO, this, 0xD000, 0xDFFF); //@TODO, should be devided over other IO devices
 }
 
 void CMOS6569::SetChar(u16 address, u8 c){
-	cout << "???????????????" << CMOS6569TextMap[c] << flush;// << endl;
 }
 
 u8 CMOS6569::GetDeviceID(){
@@ -42,7 +43,8 @@ void CMOS6569::Cycle(uint64_t totalCycles){
 }
 
 u8 CMOS6569::Peek(u16 address){
-	if(address >= 0x0400 && address <= 0x07FF){
+    //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> Peek (mos6596) address: " << std::hex << address << std::endl;
+    if(address >= 0x0400 && address <= 0x07FF){
 		return mVideoMem[address-0x0400];
 	}
 	if(address == 0xD012){
@@ -53,7 +55,7 @@ u8 CMOS6569::Peek(u16 address){
 
 
 int CMOS6569::Poke(u16 address, u8 val){
-    //std::cout << "Poke (mos6596)" << std::endl;
+    //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Poke (mos6596) address: " << std::hex << address << std::endl;
 	VICRect rect;
 	u8 v; //Vertical (Y) position of char
 	u8 cl; //character line
@@ -70,8 +72,7 @@ int CMOS6569::Poke(u16 address, u8 val){
 		rect.x = (address-0x0400)%40;//= p*8
 		rect.y = (u16) ((address-0x0400)/40)*8;
 		p = rect.x + (rect.y * 40);
-		
-		
+
 		for(v=0;v<8;v++){
 			mBus->SetMode(eBusModeVic);
 			//Read char from charRom (from VIC address mode charrom = 0x1000 or 0x9000)

@@ -53,9 +53,6 @@ private:
 	sBusDevice mIO;
 
 	e_BusMode mMemoryMode;
-	
-	u8 mPort0;
-	u8 mPort1;
 
 	bool mLoRam;
 	bool mHiRam;
@@ -67,6 +64,7 @@ public:
 	void Register(e_BusDevice devid, CDevice* device, u16 fromAddress, u16 toAddress);
 
 	u8 Peek(u16 address);
+	u8 Peek2(u16 address);
 	u16 Peek16(u16 address);
 	void Poke(u16 address, u8 m);
 	void Poke16(u16 address, u16 m);

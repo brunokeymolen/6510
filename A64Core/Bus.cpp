@@ -20,6 +20,7 @@
 
 
 #include "Bus.h"
+#include "Common.h"
 
 CBus* CBus::_instance = 0;
 
@@ -44,10 +45,6 @@ CBus::CBus(){
 	mLoRam = true;
 	mHiRam = true;
 	mCharen = true;
-
-	//IO Ports, for simplification the ports are put here instead of at the processor
-	mPort0 = 0xFF;
-	mPort1 = 0xFF;
 
 	mMemoryMode = eBusModeProcesor;
 }
@@ -75,6 +72,10 @@ void CBus::Register(e_BusDevice devid, CDevice* device, u16 fromAddress, u16 toA
 			mRam.device=device;
 			mRam.fromAddress = fromAddress;
 			mRam.toAddress = toAddress;
+            //control registers
+   	        mLoRam = mHiRam = mCharen = true;
+            mRam.device->Poke(0x0000, 0xff);
+            mRam.device->Poke(0x0001, 0xff);
 			break;
 		case eBusBasicRom:
 			mBasicRom.device=device;
@@ -97,7 +98,7 @@ void CBus::Register(e_BusDevice devid, CDevice* device, u16 fromAddress, u16 toA
 			mCia2.toAddress = toAddress;
 			break;
 		default:
-			cout << "Error! 109" << endl;
+            std::cout << "Error! 109" << std::endl;
 			break;
 	}
 
@@ -109,120 +110,174 @@ void CBus::SetMode(e_BusMode mode){
 }	
 
 
-u8 CBus::Peek(u16 address){	
-	switch(mMemoryMode){
-		case eBusModeProcesor:
-
-			/* Basic ROM */
-			if( address >= 0xA000 && address <= 0xBFFF ){
-				if(mHiRam && mLoRam){
-					return mBasicRom.device->Peek(address);
-				}else{
-					return mRam.device->Peek(address);
-				}
-			}
-			
-			/* CharRom or IO */
-			if( address >=0xD000 && address <= 0xDFFF ){
-				if(mHiRam || mLoRam){
-					if(mCharen){
-						return mIO.device->Peek(address);
-					}else{
-						return mCharRom.device->Peek(address);
-					}
-				}else{
-					return mRam.device->Peek(address);
-				}
-			 }
-			 
-			/* Kernal ROM */	
-			if(address >= 0xE000 && address <= 0xFFFF){
-				if(mHiRam){
-					return mKernalRom.device->Peek(address);
-				}else{
-					return mRam.device->Peek(address);
-				}
-			}
-			
-			/* Byte 0 (Processor Port) */
-			if( address == 0x0000 ){
-				return 0x2F;
-			}
-		
-				
-			/* --- CHECK BELOW --- */	
-			/* VIC IO - CHANGE THIS, this is encoded in the address bus`*/
-			if(address >= mVic.fromAddress && address <= mVic.toAddress){
-				return mVic.device->Peek(address);
-			}
-			
-			
-			/* RAM */
-			return mRam.device->Peek(address);
-			
-			break;
-		case eBusModeVic:
-			SetMode(eBusModeProcesor);
-			if(address >= 0x1000 && address <= 0x1FFF){
-				address = (0xD000 + (address - 0x1000));
-				return mCharRom.device->Peek(address);
-			}else if(address >= 0x9000 && address <= 0x9FFF){
-				address = (0xD000 + (address - 0x9000));
-				return mCharRom.device->Peek(address);
-			}
-			return mRam.device->Peek(address);
-		}				
-	return 0;	
+u8 CBus::Peek2(u16 address){
+    u8 val = Peek2(address);
+    std::cerr << "Peek: " << std::hex << address << " : " << (int)val << std::endl;
+    return val;
 }
 
 
+u8 CBus::Peek(u16 address){
+    //https://www.c64-wiki.com/wiki/Bank_Switching
+    if(address == 0x0000) {
+        //0x0000 - Directional data register (bits 0,1,2)
+        return mRam.device->Peek(0x0000);
+    }else if(address == 0x0001){
+        //0x0001 - Port register (bits 0,1,2)	
+        return mRam.device->Peek(0x0001);
+    } else if (address >= 0xE000 && address <= 0xFFFF) {
+        //Kernal ROM / RAM / CHART ROM HI 
+        if (mHiRam) {
+            return mKernalRom.device->Peek(address);
+        } else {
+            return mRam.device->Peek(address);
+        }
+    } else if (address >= 0x0400 && address <= 0x07FF) {
+        //Screen memory
+        return mVic.device->Peek(address);
+    } else if (address >= 0xD000 && address <= 0xDFFF) {
+        //RAM / Char ROM / IO
+        if (mCharen) {
+            //IO
+            if (address >= 0xDF00 && address <= 0xDFFF) {
+                //IO 2
+                return mRam.device->Peek(address);
+            } else if (address >= 0xDE00 && address <= 0xDEFF) {
+                //IO 1
+                return mRam.device->Peek(address);
+            } else if (address >= 0xDD00 && address <= 0xDDFF) {
+                //CIA 2
+                return mCia2.device->Peek(address);
+            } else if (address >= 0xDC00 && address <= 0xDCFF) {
+                //CIA 1
+                return mCia1.device->Peek(address);
+            } else if (address >= 0xD800 && address <= 0xDAFF) {
+                //Color RAM
+                return mRam.device->Peek(address);
+            } else if (address >= 0xD400 && address <= 0xD7FF) {
+                //SID
+                return mRam.device->Peek(address);
+            } else if (address >= 0xD000 && address <= 0xD3FF) {
+                //VIC
+                return mVic.device->Peek(address);
+            } else {
+                return mRam.device->Peek(address);
+            }
+        } else {
+            if (mHiRam == 0 && mLoRam == 0) {
+                //RAM
+                return mRam.device->Peek(address);
+            } else {
+                //CHAR ROM
+                return mCharRom.device->Peek(address);
+            }
+        }
+    } else if (address >= 0xA000 && address <= 0xBFFF) {
+        //Basic ROM / RAM / CHART ROM HI 
+        if (mLoRam && mHiRam) {
+            return mBasicRom.device->Peek(address);
+        } else {
+            return mRam.device->Peek(address);
+        }
+    } else if (address >= 0x8000 && address <= 0x9FFF) {
+        //Chart ROM LO
+        return mRam.device->Peek(address);
+    } else {
+        return mRam.device->Peek(address);
+    }
+    return 0;
+}
+
+//https://www.c64-wiki.com/wiki/Bank_Switching
+//https://www.c64-wiki.com/wiki/Memory_Map
 void CBus::Poke(u16 address, u8 m){
-	switch(mMemoryMode){
-		case eBusModeProcesor:
+    //std::cerr << "Poke: " << std::hex << address << " : " << (int)m<< std::endl;
 			
-			if(address == 0x0000 || address == 0x0001){
-			}
-			if(address == 0x0001){
-				//IO Port
-				{
-					u8 r0 = mPort1; //mRam.device->Peek(1);
+    //https://www.c64-wiki.com/wiki/Bank_Switching
+    if(address == 0x0000) {
+        //0x0000 - Directional data register (bits 0,1,2)
+#if 0
+        u8 pr = mRam.device->Peek(0x0001);
 
-					
-					u8 ioMem = m;// (r0 & m);
-					mPort1 = ioMem;
-					
-					mLoRam = mHiRam = mCharen = 0;
-					if(ioMem & 1)mLoRam = 1;
-					if(ioMem & 2)mHiRam = 1;
-					if(ioMem & 4)mCharen = 1;
-					
-					mRam.device->Poke(1,m);
-					
-				}
+        mLoRam = mHiRam = mCharen = 0;
+        if ((m & 1) && (pr & 1)) mLoRam = 1;
+        if ((m & 2) && (pr & 2)) mHiRam = 1;
+        if ((m & 4) && (pr & 4)) mCharen = 1;
+#endif     
+        mRam.device->Poke(0x0000, m);
+    
+    }else if(address == 0x0001){
+        //0x0001 - Port register (bits 0,1,2)	
+        //u8 cr = mRam.device->Peek(0x0000);
 
-			}else if(address >= mIO.fromAddress && address <= mIO.toAddress){
-				 mIO.device->Poke(address,m);
-			}else if(address >= mVic.fromAddress && address <= mVic.toAddress){
-				 mVic.device->Poke(address,m);
-			}else if(address >= mBasicRom.fromAddress && address <= mBasicRom.toAddress){
-				 mBasicRom.device->Poke(address,m);
-			}else if(address >= mKernalRom.fromAddress && address <= mKernalRom.toAddress){
-				 mKernalRom.device->Poke(address,m);
-			}else if(address >= mCia1.fromAddress && address <= mCia1.toAddress){
-				 mCia1.device->Poke(address,m);
-			}else if(address >= mCia2.fromAddress && address <= mCia2.toAddress){
-				 mCia2.device->Poke(address,m);
-			}else if(address >= mRam.fromAddress && address <= mRam.toAddress){
-				 mRam.device->Poke(address,m);
-			}else{
-				cout << "Error 822" << endl;
-			}
-			break;
-		case eBusModeVic:
-			SetMode(eBusModeProcesor);	
-			mRam.device->Poke(address, m);
-			break;
-		}
+        mLoRam = mHiRam = mCharen = 0;
+        if ((m & 1)) mLoRam = 1;
+        if ((m & 2)) mHiRam = 1;
+        if ((m & 4)) mCharen = 1;
+            
+        mRam.device->Poke(0x0001, m);
+
+    } else if (address >= 0xE000 && address <= 0xFFFF) {
+        //Kernal ROM / RAM / CHART ROM HI 
+        if (mHiRam) {
+            mKernalRom.device->Poke(address,m);
+        } else {
+            mRam.device->Poke(address, m);
+        }
+    } else if (address >= 0x0400 && address <= 0x07FF) {
+        //Screen memory
+        mVic.device->Poke(address, m);
+    } else if (address >= 0xD000 && address <= 0xDFFF) {
+        //std::cout << "POKE " << std::hex << address << std::dec << " mCharen: " << mCharen << std::endl;
+        //RAM / Char ROM / IO
+        if (mCharen) {
+            //IO
+            if (address >= 0xDF00 && address <= 0xDFFF) {
+                //IO 2
+                mRam.device->Poke(address, m);
+            } else if (address >= 0xDE00 && address <= 0xDEFF) {
+                //IO 1
+                mRam.device->Poke(address, m);
+            } else if (address >= 0xDD00 && address <= 0xDDFF) {
+                //CIA 2
+                mCia2.device->Poke(address, m);
+            } else if (address >= 0xDC00 && address <= 0xDCFF) {
+                //CIA 1
+                mCia1.device->Poke(address, m);
+            } else if (address >= 0xD800 && address <= 0xDAFF) {
+                //Color RAM
+                mRam.device->Poke(address, m);
+            } else if (address >= 0xD400 && address <= 0xD7FF) {
+                //SID
+                mRam.device->Poke(address, m);
+            } else if (address >= 0xD000 && address <= 0xD3FF) {
+                //VIC
+                mVic.device->Poke(address, m);
+            } else {
+                mRam.device->Poke(address, m);
+            }        
+        } else {
+            if (mHiRam == 0 && mLoRam == 0) {
+                //RAM
+                mRam.device->Poke(address, m);
+            } else {
+                //CHAR ROM
+                mCharRom.device->Poke(address, m);
+            }
+        }
+    } else if (address >= 0xA000 && address <= 0xBFFF) {
+        //Basic ROM / RAM / CHART ROM HI 
+        if (mLoRam && mHiRam) {
+            mBasicRom.device->Poke(address,m);
+        } else {
+            mRam.device->Poke(address, m);
+        }
+    } else if (address >= 0x8000 && address <= 0x9FFF) {
+        //Chart ROM LO
+        mRam.device->Poke(address, m);
+    } else {
+        mRam.device->Poke(address, m);
+    }
 }
 
 
@@ -267,7 +322,7 @@ void CBus::PokeDevice(u8 deviceID, u16 address, u8 m){
 			mCia2.device->Poke(address, m);
 			break;		
 		default:
-			cout << "Error! 1239" << endl;
+            std::cout << "Error! 1239" << std::endl;
 			break;
 	}
 }
@@ -299,7 +354,7 @@ u8 CBus::PeekDevice(u8 deviceID, u16 address){
 			return mCia2.device->Peek(address);
 			break;		
 		default:
-			cout << "Error! 1239" << endl;
+            std::cout << "Error! 1239" << std::endl;
 			break;
 	}
 	return 0;

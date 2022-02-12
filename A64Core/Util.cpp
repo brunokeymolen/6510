@@ -11,14 +11,14 @@
 
 void CUtil::HexDumpMemory(CBus* mem, u16 address, u16 len, int width){
 	address = address - (address % width); 
-	cout << hex << setfill('0') << uppercase;
+    std::cout << std::hex << std::setfill('0') << std::uppercase;
 	for(int mc=address; mc<address+len; mc++){
 		if((mc-address) % width == 0){
-			cout << endl << "0x" << setw(4) << mc << " : ";  
+            std::cout << std::endl << "0x" << std::setw(4) << mc << " : ";  
 		}
-		cout << " 0x" << setw(2) << (int)mem->Peek(mc);
+        std::cout << " 0x" << std::setw(2) << (int)mem->Peek(mc);
 	}
-	cout << nouppercase << endl;
+    std::cout << std::nouppercase << std::endl;
 }
 
 void CUtil::HexDumpMemory(CBus* mem, u16 address, u16 len){
