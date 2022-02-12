@@ -26,7 +26,7 @@ static char CMOS6569TextMap[128] =
 
 
 CMOS6569::CMOS6569(){
-	memset(mVideoMem, 44, (0x0800-0x0400));
+	memset(mVideoMem, 0x0, (0x0800-0x0400));
 	mBus = CBus::GetInstance(); 
 	mBus->Register(eBusVic, this, 0x0400, 0x07FF);
 	mBus->Register(eBusIO, this, 0xD000, 0xDFFF); //@TODO, should be devided over other IO devices

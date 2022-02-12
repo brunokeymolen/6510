@@ -28,7 +28,6 @@ void CMOS6526CIA2::Cycle(uint64_t totalCycles){
 
 u8 CMOS6526CIA2::Peek(u16 address){
     //std::cout << "CIA2 PEEK ****************************" << std::endl;
-    return 3;
 	return mBus->PeekDevice(eBusRam,address);
 }
 

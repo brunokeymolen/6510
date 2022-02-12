@@ -147,10 +147,13 @@ void uiloop() {
     if (elapsed > 0) {
         std::cout << "cycles " << 1000*(total_cycles/(now()-start)) << "/sec" << std::endl;
     }
-    
+
+#if 1
+    //way overkill but debug only
     std::vector<uint16_t> addr;
-    for (uint16_t a = 0xdd00; a<= 0xddff; a++) {
-//        addr.push_back(a);
+    for (uint16_t a = 0xdd00; a<= 0xddff; a++) { //CIA2
+    //for (uint16_t a = 0xdc00; a<= 0xdcff; a++) { //CIA1
+        addr.push_back(a);
     }
 
     for (int i=0;i<addr.size();i++) {
@@ -161,6 +164,8 @@ void uiloop() {
         }
     }
     std::cout << std::endl;
+#endif
+
 }
 
 //https://stackoverflow.com/questions/36428098/c-how-to-check-if-my-input-bufferstdin-is-empty
