@@ -33,8 +33,23 @@ u8 CMOS6526CIA2::Peek(u16 address){
 
 
 int CMOS6526CIA2::Poke(u16 address, u8 val){
+    
     //std::cout << "CIA2 POKE **************************** " << std::hex << address  << " : " << (int)val << std::dec << std::endl;
-	mBus->PokeDevice(eBusRam,address,val);
+
+	u16 reg = address - 0xDD00;
+    u8 currentRegVal = mBus->PeekDevice(eBusRam, address);
+#if 0 
+    std::cerr << "reg = " << reg << " currentRegVal: " << (int)currentRegVal << " val: " << (int)val << std::endl; 
+    std::cerr << "val: " << (val & 8) << "  (currentRegVal & 8): " << (currentRegVal & 8) << std::endl; 
+#endif    
+    if ( reg ==  0) {
+        if (((val & 8) == 8) && ((currentRegVal & 8) == 0) ) {
+            std::cerr << " \033[<1>;<30>f" << "Serial ATN In/Out. Set low by the host (C64) to indicate the beginning of a serial data transfer.[9]" << std::endl;
+            sleep(3);
+        }
+    }
+
+    mBus->PokeDevice(eBusRam,address,val);
 	return 0;
 }	
 

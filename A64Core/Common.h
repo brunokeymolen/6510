@@ -21,5 +21,5 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <iomanip>
-	
+#include <unistd.h>	
 #endif

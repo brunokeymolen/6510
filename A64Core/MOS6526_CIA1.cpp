@@ -35,6 +35,7 @@ u8 CMOS6526CIA1::Peek(u16 address){
 
 int CMOS6526CIA1::Poke(u16 address, u8 val){
     //std::cout << "CIA1 POKE **************************** " << std::hex << address  << " : " << (int)val << std::dec << std::endl;
+    
 	mBus->PokeDevice(eBusRam,address,val);
 	return 0;
 }	
