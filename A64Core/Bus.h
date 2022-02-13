@@ -57,6 +57,7 @@ private:
 	bool mLoRam;
 	bool mHiRam;
 	bool mCharen;
+
 protected:
 	CBus();
 public:

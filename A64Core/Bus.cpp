@@ -47,6 +47,7 @@ CBus::CBus(){
 	mCharen = true;
 
 	mMemoryMode = eBusModeProcesor;
+
 }
 
 

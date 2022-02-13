@@ -127,6 +127,7 @@ void runloop() {
 
 }
 
+// https://style64.org/petscii/
 void uiloop() {
     std::cout << "\033[0;0H" << std::endl; 
     std::cout << "\u001b[44m" << std::endl; 
@@ -256,7 +257,7 @@ int main(int argc, char* argv[]) {
             } else if (c == 10) {
                 c = 13;
             } else if (isKeystroke(keystroke, ESC)) {
-                c = 3;
+                c = 63;
             } else if (isKeystroke(keystroke, KEYUP)) {
                 c = 145;
             } else if (isKeystroke(keystroke, KEYDOWN)) {

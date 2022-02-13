@@ -19,6 +19,7 @@
 #include "KernalRom.h"
 #include "MOS6526_CIA1.h"
 #include "MOS6526_CIA2.h"
+#include "1541.h"
 #include "CharRom.h"
 #include "General.h"
 #include <thread>
@@ -34,7 +35,10 @@ class CBM64Main{
 		CMOS6510* mProcessor;
 		CMOS6526CIA1* mCia1;
 		CMOS6526CIA2* mCia2;
-	    uint64_t mTotalCycles;
+        
+        C1541* m1541;
+	    
+        uint64_t mTotalCycles;
 
 		BKE_THREAD mCBM64Thread;
 		BKE_MUTEX mMutex;

@@ -19,17 +19,20 @@ int CBM64Main::Init(){
 
     mTotalCycles = 0;
 
-	mBus = CBus::GetInstance();
+    m1541 = new C1541();
+	
+    mBus = CBus::GetInstance();
 	mVic = new CMOS6569();	
 	mRam = new CRam();	
 	mBasicRom = new CBasicRom();
 	mKernalRom = new CKernalRom();
 	mProcessor = new CMOS6510(mMutex);
 	mCia1 = new CMOS6526CIA1(mMutex);
-	mCia2 = new CMOS6526CIA2(mMutex);
+	mCia2 = new CMOS6526CIA2(mMutex, m1541);
 	mCharRom = new CCharRom();
 	
-	
+    m1541->Init(dynamic_cast<SerialInterface*>(mCia2));
+
     return 0;
 }
 
@@ -52,6 +55,7 @@ int CBM64Main::Stop(){
 	delete mCia1;
 	delete mCia2;
 	delete mCharRom;
+    delete m1541;
 	return 0;
 }
 
