@@ -25,6 +25,7 @@ private:
 	CBus* mBus;
     C1541* m1541;
 	BKE_MUTEX mMutex;
+    u8* mRegs;
 protected:
 public:
 	CMOS6526CIA2(BKE_MUTEX mutex, C1541* disk);
@@ -35,6 +36,8 @@ public:
 	u8 GetDeviceID();
 	u8 Peek(u16 address);
 	int Poke(u16 address, u8 val); 	
+    
+    void SetPin(u8 bits, u8 hilo);
 
 	int AddKeyStroke(char c);
 

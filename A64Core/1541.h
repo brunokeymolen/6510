@@ -14,6 +14,11 @@
 #include "serial.h"
 
 class C1541 {
+    private:
+        enum SerialState {
+            ATN,
+            RECEIVE
+        } mState;
     public:
     public:
         C1541();

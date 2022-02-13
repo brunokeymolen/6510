@@ -30,21 +30,31 @@ void C1541::SerialEvent(SerialPin pin, u8 hilo) {
     switch (pin) {   
         case SerialPin::ATN:
             std::cerr << "serialevent ATN: " << " hi/lo: " << (int)hilo << std::endl;
+            if (hilo == 1) {
+                mState = SerialState::ATN;
+                SetSerialPin(SerialPin::CLK, 0);
+                SetSerialPin(SerialPin::DATA, 1);
+            }
             break;
         case SerialPin::CLK:
             std::cerr << "serialevent CLK: " << " hi/lo: " << (int)hilo << std::endl;
             if (hilo) {
-                std::cerr << "initial situatoin" << std::endl;  
-                SetSerialPin(SerialPin::DATA, 1);
+                std::cerr << "initial situation" << std::endl;  
+            //    SetSerialPin(SerialPin::DATA, 1);
                 
             }
             if (hilo == 0) {
                 //To begin the talker releases the Clock line to false
-                SetSerialPin(SerialPin::DATA, 0); //We are ready to talk
+           //     SetSerialPin(SerialPin::DATA, 0); //We are ready to talk
             }
             break;
         case SerialPin::DATA:
             std::cerr << "serialevent DATA: " << " hi/lo: " << (int)hilo << std::endl;
+            if (hilo == 0) {
+                if (mState == SerialState::ATN) {
+                    std::cerr << "expected to see this at ATN, Ready to receive" << std::endl;
+                }
+            }
             break;
     }
 }

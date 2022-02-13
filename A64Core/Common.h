@@ -22,4 +22,8 @@
 #include <stdio.h>
 #include <iomanip>
 #include <unistd.h>	
+
+
+std::string binary(u8 v);
+
 #endif
