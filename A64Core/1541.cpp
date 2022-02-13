@@ -31,6 +31,7 @@ void C1541::SerialEvent(SerialPin pin, u8 hilo) {
         case SerialPin::ATN:
             std::cerr << "serialevent ATN: " << " hi/lo: " << (int)hilo << std::endl;
             if (hilo == 1) {
+                std::cerr << "ATN is pulled to True: release clk and pull the data line to let the processor known he 1541 is ready to listen" << std::endl;
                 mState = SerialState::ATN;
                 SetSerialPin(SerialPin::CLK, 0);
                 SetSerialPin(SerialPin::DATA, 1);
@@ -45,7 +46,7 @@ void C1541::SerialEvent(SerialPin pin, u8 hilo) {
             }
             if (hilo == 0) {
                 //To begin the talker releases the Clock line to false
-           //     SetSerialPin(SerialPin::DATA, 0); //We are ready to talk
+                SetSerialPin(SerialPin::DATA, 0); //ready to talk
             }
             break;
         case SerialPin::DATA:

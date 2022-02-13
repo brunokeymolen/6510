@@ -5,7 +5,7 @@
 std::string binary(u8 v) {
     std::string b;
     for (int x=7;x>=0;x--) {
-        if (std::pow(2,x) > v) {
+        if (std::pow(2,x) <= v) {
             v=v-std::pow(2,x);
             b.append("1");
         } else {
