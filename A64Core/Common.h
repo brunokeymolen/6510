@@ -24,6 +24,19 @@
 #include <unistd.h>	
 
 
+namespace common {
+
+// https://retrotinker.net/who-turned-the-clock/ 
+#if 1
+    //NTSC
+    static const int CPUHZ = 1022730;
+#else
+    //PAL
+    static const int CPUHZ = 985270;
+#endif
+
 std::string binary(u8 v);
 
+
+} //ns
 #endif

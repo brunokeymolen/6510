@@ -103,8 +103,7 @@ class EMCScreen : public CVICHWScreen {
 
 
 void runloop() {
-    int target_cycles = 1023000; //NTSC
-    int cycles_100_ms = target_cycles / 10;
+    int cycles_100_ms = common::CPUHZ / 10;
     int cycles = 0;
     start = now();
 
@@ -127,6 +126,7 @@ void runloop() {
 
 }
 
+// https://www.pagetable.com/c64ref/charset/
 // https://style64.org/petscii/
 void uiloop() {
     std::cout << "\033[0;0H" << std::endl; 

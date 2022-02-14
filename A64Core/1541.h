@@ -16,7 +16,10 @@
 class C1541 {
     private:
         enum SerialState {
+            INIT,
             ATN,
+            HANDSHAKE,
+            READY_FOR_DATA,
             RECEIVE
         } mState;
     public:
@@ -34,6 +37,8 @@ class C1541 {
         void SendByte(u8);
     private:
        SerialInterface *mSerial; 
+       uint64_t mCycles;
+       uint64_t mLastEvent;
 };
 
 

@@ -33,20 +33,20 @@ void C1541::SerialEvent(SerialPin pin, u8 hilo) {
             if (hilo == 1) {
                 std::cerr << "ATN is pulled to True: release clk and pull the data line to let the processor known he 1541 is ready to listen" << std::endl;
                 mState = SerialState::ATN;
-                SetSerialPin(SerialPin::CLK, 0);
-                SetSerialPin(SerialPin::DATA, 1);
+                mLastEvent = mCycles;
             }
             break;
         case SerialPin::CLK:
             std::cerr << "serialevent CLK: " << " hi/lo: " << (int)hilo << std::endl;
-            if (hilo) {
-                std::cerr << "initial situation" << std::endl;  
-            //    SetSerialPin(SerialPin::DATA, 1);
-                
-            }
-            if (hilo == 0) {
-                //To begin the talker releases the Clock line to false
+            if (hilo == 0 && mState == SerialState::HANDSHAKE) {
+                std::cerr << "ready for data" << std::endl;  
+                mState = SerialState::READY_FOR_DATA;
                 SetSerialPin(SerialPin::DATA, 0); //ready to talk
+
+            }
+            if (hilo == 1 && mState == SerialState::READY_FOR_DATA) {
+                std::cerr << "talker took back clock" << std::endl;  
+                mState = SerialState::RECEIVE;
             }
             break;
         case SerialPin::DATA:
@@ -79,7 +79,13 @@ u8 C1541::GetSerialPin(SerialPin pin) {
 
 
 void C1541::Cycle(uint64_t totalCycles) {
-
+    mCycles = totalCycles;
+    if (mState == SerialState::ATN && totalCycles - mLastEvent > 100) {
+        std::cerr << "->receive" << std::endl;
+        mState = SerialState::HANDSHAKE;
+        SetSerialPin(SerialPin::CLK, 0);
+        SetSerialPin(SerialPin::DATA, 1);
+    }
 }
 
 

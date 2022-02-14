@@ -43,6 +43,7 @@ int CBM64Main::Cycle(){
     mTotalCycles += cycles;
     mCia1->Cycle(mTotalCycles);
     mCia2->Cycle(mTotalCycles);
+    m1541->Cycle(mTotalCycles);
     return cycles;
 }
 

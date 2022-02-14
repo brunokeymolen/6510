@@ -1,6 +1,7 @@
 #include "Common.h"
 #include <cmath>
 
+namespace common {
 
 std::string binary(u8 v) {
     std::string b;
@@ -15,4 +16,4 @@ std::string binary(u8 v) {
     return b;
 }
 
-
+} //ns

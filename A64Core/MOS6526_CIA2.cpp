@@ -22,6 +22,7 @@
 
 
 CMOS6526CIA2::CMOS6526CIA2(BKE_MUTEX mutex, C1541* disk){
+    std::cerr << "\n\nCIA2 INIT *****************************************\n" << std::endl;
 	mMutex = mutex;
     m1541 = disk;
 	mBus = CBus::GetInstance();
@@ -82,7 +83,7 @@ int CMOS6526CIA2::Poke(u16 address, u8 val){
    
     if (reg == 0) {
         std::cerr << std::endl;
-        std::cerr << "" << "* current; "  << binary(currentRegVal) << " "
+        std::cerr << "" << "* current; "  << common::binary(currentRegVal) << " "
             << "(" << std::hex << (int)currentRegVal << std::dec << ")"
             << "  ATN: " << ((currentRegVal & PIN_ATN) > 0) 
             << "  CLK_OUT: " << ((currentRegVal & PIN_CLK_OUT) > 0)
@@ -90,7 +91,7 @@ int CMOS6526CIA2::Poke(u16 address, u8 val){
             << "  CLK_IN: " << ((currentRegVal & PIN_CLK_IN) > 0)
             << "  DATA_IN: " << ((currentRegVal & PIN_DATA_IN) > 0) 
             << std::endl;
-        std::cerr << "" << "  new    ; " << binary(val) << " "
+        std::cerr << "" << "  new    ; " << common::binary(val) << " "
             << "(" << std::hex << (int)val << std::dec << ")"
             << "  ATN: " << ((val & PIN_ATN) > 0) 
             << "  CLK_OUT: " << ((val & PIN_CLK_OUT) > 0)
@@ -202,7 +203,7 @@ void CMOS6526CIA2::SetPin(u8 bit, u8 hilo) {
     }
     mRegs[reg] = val;
     
-    std::cerr << "cia2 set register " << std::hex << reg << " : " << (int)val << " " << binary(val) << " bit " << binary(bit) << std::endl;
+    std::cerr << "cia2 set register " << std::hex << reg << " : " << (int)val << " " << common::binary(val) << " bit " << common::binary(bit) << std::endl;
 }
 
 u8 CMOS6526CIA2::GetPin(SerialPin pin) {
