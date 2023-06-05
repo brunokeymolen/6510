@@ -106,8 +106,8 @@ void runloop() {
     int cycles = 0;
     start = now();
 
+    cycles = 0;
     while (_run) {
-        cycles = 0;
         uint64_t ts = now();
         while(true) {
             cycles += cbm64->Cycle();
